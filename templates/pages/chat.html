@@ -1,0 +1,21 @@
+<!-- Chat-only Studio layout. Existing control IDs retain conversation/storage behavior. -->
+<div id="chatView" class="view view-panel">
+<div id="chatShell" class="chat-shell">
+<aside class="chat-conversations" aria-label="Conversations"><div class="chat-history-heading"><b>Conversations</b><button id="chatNew" type="button">New chat</button></div><div id="chatConversations"></div><details class="chat-history-options"><summary>History options</summary><div class="chat-history-tools"><button id="chatExport" type="button">Export JSON</button><label class="chat-import">Import JSON<input id="chatImport" type="file" accept="application/json,.json"></label></div><small class="muted">Saved in this browser. Export to keep a separate copy.</small></details></aside>
+<section class="chat-main" aria-label="Chat conversation">
+<div class="chat-toolbar"><h1>Chat</h1><label><span class="chat-model-label">Loaded model</span><select id="chatModel" aria-label="Loaded chat model"><option value="">Checking loaded models...</option></select></label></div>
+<div id="chatNotice" class="chat-notice hidden" role="status"></div>
+<div id="chatMessages" class="chat-messages" tabindex="0" aria-label="Messages"></div>
+<button id="chatLatest" type="button" class="chat-latest hidden">Jump to latest</button>
+<form id="chatComposer" class="chat-composer"><label class="chat-compose-label" for="chatInput">Message</label><textarea id="chatInput" rows="3" placeholder="Message your model..." maxlength="200000"></textarea><div class="chat-compose-actions"><span id="chatActivity" role="status" class="muted">Ready</span><span class="chat-enter-hint muted">Enter to send · Shift+Enter for newline</span><button id="chatSend" class="primary" type="submit">Send</button></div></form>
+</section>
+<aside id="chatInspector" class="chat-inspector" aria-label="Chat settings and performance">
+<div class="chat-inspector-heading"><button id="chatDetailsToggle" type="button" aria-controls="chatInspectorContent" aria-expanded="true">Hide »</button></div>
+<div id="chatInspectorContent">
+<div class="chat-connection-info"><span id="chatConnection" class="muted" role="status">Checking connection...</span><button id="chatRefresh" type="button">Refresh connection</button></div>
+<details class="chat-settings" open><summary>Conversation settings</summary><div class="chat-settings-grid"><label>Response length<select id="chatOutputLimit"><option value="available" selected>Use model setting</option><option value="cap">Set output cap</option></select></label><label>Maximum output tokens<input id="chatMaxTokens" type="number" min="1" max="2147483647" value="8192" disabled></label><label>Temperature setting<select id="chatTemperatureMode"><option value="model" selected>Use model setting</option><option value="override">Override temperature</option></select></label><label>Temperature override<input id="chatTemperature" type="number" min="0" max="2" step="0.1" value="0.8" disabled></label></div><small>Use model setting leaves response length and temperature to the running model. Enable an override only to change them for this conversation.</small></details>
+<details class="chat-settings"><summary>System prompt</summary><label class="chat-system-label" for="chatSystem">Instructions for this conversation</label><textarea id="chatSystem" rows="5" placeholder="Optional instructions for this conversation"></textarea></details>
+<details class="chat-settings"><summary>API key</summary><label class="chat-system-label" for="chatKey">This session only</label><input id="chatKey" type="password" autocomplete="off" placeholder="Only if your server requires it"><small class="muted">Not saved with conversations.</small></details>
+<section class="chat-performance" aria-label="Last response performance"><h2 id="chatPerformanceHeading">Last response</h2><dl id="chatPerformance"></dl><div id="chatContext" class="chat-context muted"></div><details id="chatRawMetrics"><summary>Measurement details</summary><pre id="chatMetricValues"></pre></details><small class="muted">Measurements appear when available. Context usage describes the last response, not the next prompt.</small></section>
+</div></aside>
+</div></div>

@@ -1,0 +1,20 @@
+<!-- Keep these controls mounted: collapsed sections still participate in presetData(). -->
+<details class="editor-section" id="editor-acceleration" data-editor-section="acceleration">
+<summary><span class="editor-section-number">06</span><span class="editor-section-heading"><span class="editor-section-title">Speculative decoding</span><span class="editor-section-summary" data-editor-summary="acceleration">Optional acceleration using draft predictions or MTP. The selected build and model must support the chosen method.</span></span><span class="editor-section-chevron" aria-hidden="true">+</span></summary>
+<div class="editor-section-body"><p class="editor-section-intro">Optional acceleration using draft predictions or MTP. The selected build and model must support the chosen method.</p>
+<div class="grid editor-fields">
+<div class="field editor-setting"><label>Draft / MTP type (--spec-type)</label><select id="specType" name="visllama-model-specType" autocomplete="off"><option value="none">None</option><option value="draft-mtp">MTP - embedded or external heads</option><option value="draft-simple">External draft model - simple</option><option value="draft-eagle3">External draft model - EAGLE-3</option><option value="draft-dflash">External draft model - DFlash</option><option value="draft-dspark">External draft model - DSpark</option></select></div>
+<div class="field editor-setting"><label>External draft / MTP-head GGUF</label><select id="draft" name="visllama-model-draft" autocomplete="off"><option value="">None / use target model</option></select></div>
+</div>
+<div id="mtpHint" class="muted" style="margin-top:8px">For models with built-in MTP heads (such as supported Qwen3.8 GGUFs), select <b>MTP</b>; an external draft model can usually be left unset.</div><details class="editor-advanced"><summary>Draft tuning & placement</summary><div class="grid editor-fields">
+<div class="field editor-setting"><label>Maximum draft tokens (--spec-draft-n-max)</label><input id="draftTokens" type="number" min="0" placeholder="build default" name="visllama-model-draftTokens" autocomplete="off"></div>
+<div class="field editor-setting"><label>Minimum draft tokens (--spec-draft-n-min)</label><input id="draftMinTokens" type="number" min="0" placeholder="0" name="visllama-model-draftMinTokens" autocomplete="off"></div>
+<div class="field editor-setting"><label>Minimum acceptance probability (--spec-draft-p-min)</label><input id="draftPMin" type="number" min="0" max="1" step="0.01" placeholder="build default" name="visllama-model-draftPMin" autocomplete="off"></div>
+<div class="field editor-setting"><label>Split probability (--spec-draft-p-split)</label><input id="draftPSplit" type="number" min="0" max="1" step="0.01" placeholder="build default" name="visllama-model-draftPSplit" autocomplete="off"></div>
+<div class="field editor-setting"><label>Draft/MTP GPU layers (--spec-draft-ngl)</label><input id="draftNgl" placeholder="auto / all / N" name="visllama-model-draftNgl" autocomplete="off"></div>
+<div class="field editor-setting"><label>Draft/MTP devices (--spec-draft-device)</label><input id="draftDevice" placeholder="e.g. CUDA1,CUDA2" name="visllama-model-draftDevice" autocomplete="off"></div>
+<div class="field editor-setting"><label>Draft KV K type (--spec-draft-type-k)</label><select id="draftTypeK" name="visllama-model-draftTypeK" autocomplete="off"><option value="">default</option><option>f32</option><option>f16</option><option>bf16</option><option>q8_0</option><option>q4_0</option></select></div>
+<div class="field editor-setting"><label>Draft KV V type (--spec-draft-type-v)</label><select id="draftTypeV" name="visllama-model-draftTypeV" autocomplete="off"><option value="">default</option><option>f32</option><option>f16</option><option>bf16</option><option>q8_0</option><option>q4_0</option></select></div>
+</div>
+</details>
+{{> editor/ngram.html}}</div></details>

@@ -1,0 +1,63 @@
+// VisLlama: builds. Loaded in the order declared in templates/partials/scripts.html.
+
+// Installation setup and server-side file selection. Changing a build
+// changes its help/device probes; paths here belong to the host, not the browser.
+
+
+let BUILD_MANAGER_DOCKER=false;
+
+function setBuildManagerDocker(on,clear=true){
+ BUILD_MANAGER_DOCKER=!!on&&CFG?.platform==='linux';
+ $('toggleDockerBuilds').textContent=BUILD_MANAGER_DOCKER?'Manage Native Builds':'Add Docker Images';
+ $('toggleDockerBuilds').disabled=CFG?.platform!=='linux';
+ $('toggleDockerBuilds').title=CFG?.platform==='linux'?'':'Docker images are supported on Linux only';
+ $('nativeBuildDiscovery').classList.toggle('hidden',BUILD_MANAGER_DOCKER);
+ $('dockerBuildNote').classList.toggle('hidden',!BUILD_MANAGER_DOCKER);
+ $('browseBuildPath').classList.toggle('hidden',BUILD_MANAGER_DOCKER);
+ $('buildPathLabel').textContent=BUILD_MANAGER_DOCKER?'Build image':'Build folder';
+ $('buildPathConfig').placeholder=BUILD_MANAGER_DOCKER?'e.g. scitrera/dgx-spark-llama-cpp:latest':`Folder containing ${buildExecutableName()}`;
+ if(clear)clearBuildEditor();renderBuildManager();
+}
+
+function buildExecutableName(){return CFG?.server_executable||'llama-server.exe'}
+function buildPathKey(path){return CFG?.platform==='linux'?path:path?.toLowerCase()}
+
+function syncBuildStatus(){const b=CFG?.builds?.find(x=>x.name===$('build').value);if(!$('buildStatus'))return;if(!b){$('buildStatus').textContent='No build selected.';return}if(b.type==='docker'){$('buildStatus').textContent=`Docker image: ${b.image}${CFG?.platform==='linux'?'':' (Linux only)'}`;return}$('buildStatus').textContent=b.available?`Detected: ${b.exe||b.dir}`:`Configured: ${b.dir} - ${buildExecutableName()} was not detected during the initial probe; selection is still allowed.`}
+
+function renderBuildSelector(preferred){const sel=$('build');const old=preferred||sel.value;sel.innerHTML=(CFG?.builds||[]).map(b=>`<option value="${esc(b.name)}">${esc(b.name)}</option>`).join('');if(old&&[...sel.options].some(o=>o.value===old))sel.value=old;else if(sel.options.length)sel.selectedIndex=0;syncBuildStatus()}
+
+function renderEngineBuildSummary(){
+ const target=$('engineBuildSummary');if(!target)return;
+ const builds=CFG?.engine_builds||[];
+ target.innerHTML='<h3>Other engine builds</h3>'+(builds.length?'<table class="config-table"><thead><tr><th>Build / engine</th><th>Installation</th><th>Actions</th></tr></thead><tbody>'+builds.map(b=>`<tr><td><b>${esc(b.name)}</b><div>${esc(b.engine)}</div></td><td class="config-path">${esc(b.root)}<div>${esc(b.executable)}</div></td><td><button type="button" data-open-engine="${esc(b.id)}">Manage</button></td></tr>`).join('')+'</tbody></table>':'<p class="muted">No other engine builds registered.</p>');
+ target.querySelectorAll('[data-open-engine]').forEach(button=>button.onclick=()=>engineOpenBuilds(button.dataset.openEngine));
+ if($('buildCount'))$('buildCount').textContent=`${(CFG?.builds||[]).length+builds.length} configured`;
+}
+function renderBuildManager(){
+ renderEngineBuildSummary();
+ if($('buildCount'))$('buildCount').textContent=`${(CFG?.builds||[]).length+(CFG?.engine_builds||[]).length} configured`;
+ const builds=(CFG?.builds||[]).filter(b=>(b.type==='docker')===BUILD_MANAGER_DOCKER);
+ const rows=builds.map(b=>`<tr><td><b>${esc(b.name)}</b><div class="${b.available?'running':'muted'}">${b.type==='docker'?'Docker image':b.available?'Detected':'Not detected'}</div></td><td class="config-path">${esc(b.image||b.dir||'')}</td><td><div class="config-actions"><button type="button" data-details-build="${esc(b.name)}" ${b.available?'':'disabled'}>Details</button><button type="button" data-edit-build="${esc(b.name)}">Edit</button><button type="button" class="danger" data-delete-build="${esc(b.name)}">Remove</button></div></td></tr>`).join('');
+ $('buildManager').innerHTML=rows?`<table class="config-table"><thead><tr><th>Alias</th><th>${BUILD_MANAGER_DOCKER?'Image':'Folder'}</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`:`<span class="muted">No ${BUILD_MANAGER_DOCKER?'Docker images':'native builds'} configured.</span>`;
+ $('buildManager').querySelectorAll('[data-details-build]').forEach(btn=>btn.onclick=()=>showBuildDetails(btn.dataset.detailsBuild));
+ $('buildManager').querySelectorAll('[data-edit-build]').forEach(btn=>btn.onclick=()=>{const b=CFG.builds.find(x=>x.name===btn.dataset.editBuild);if(!b)return;EDITING_BUILD_ALIAS=b.name;$('buildAliasConfig').value=b.name;$('buildPathConfig').value=b.image||b.dir;$('buildEditorMode').textContent='Editing: '+b.name});
+ $('buildManager').querySelectorAll('[data-delete-build]').forEach(btn=>btn.onclick=async()=>{const alias=btn.dataset.deleteBuild;const refs=(ROUTER_PRESETS||[]).filter(p=>p.build===alias).map(p=>p.alias);if(refs.length){toast('Reassign or delete these model presets first: '+refs.join(', '),true);return}if(!confirm(`Remove build configuration ${alias}? Model presets using it must be reassigned or deleted first.`))return;try{const j=await post('/api/build-delete',{alias},{label:'Removing build...'});CFG.builds=j.builds||[];renderBuildSelector();renderBuildManager();updateSetup();if(CFG.builds.length)await Promise.all([loadHelp(),loadDevices()]);else{DEVICES=[];DEVICE_SELECTION=[];renderDevices([])}toast('Build removed')}catch(e){toast(e.message,true)}});
+}
+
+function updateSetup(){SETUP_REQUIRED=!(CFG?.builds||[]).length&&!(CFG?.engine_builds||[]).length;$('buildManagerTitle').textContent=SETUP_REQUIRED?'Initial setup: engine build':'Manage builds';$('setupNote').classList.toggle('hidden',!SETUP_REQUIRED);$('buildManagerModal').querySelector('[data-close-modal="buildManagerModal"]').classList.toggle('hidden',SETUP_REQUIRED);if(SETUP_REQUIRED)openModal('buildManagerModal');else closeModal('buildManagerModal');syncServerButtons()}
+
+async function scanBuildRoot(){const root=$('discoveryRoot').value.trim();if(!root){toast('Select a discovery root first',true);return}try{const j=await post('/api/build-scan',{root},{label:'Scanning llama.cpp builds...'});CFG.discovery_root=j.root;const configured=new Set((CFG.builds||[]).map(b=>buildPathKey(b.exe)));$('scanResults').innerHTML=`<div class="muted">${j.builds.length} executable(s) found in ${j.scanned_directories} folders${j.limited?' (scan limit reached)':''}.</div>`+(j.builds.length?`<table class="config-table"><thead><tr><th>Suggested name / reported version</th><th>Folder</th><th></th></tr></thead><tbody>${j.builds.map((b,i)=>`<tr><td><b>${esc(b.suggested_alias)}</b><div class="muted">${esc((b.version||'No version output').split(/\r?\n/)[0])}</div></td><td class="config-path">${esc(b.dir)}</td><td><button type="button" data-use-discovered="${i}" ${configured.has(buildPathKey(b.exe))?'disabled':''}>${configured.has(buildPathKey(b.exe))?'Configured':'Use'}</button></td></tr>`).join('')}</tbody></table>`:'');$('scanResults').querySelectorAll('[data-use-discovered]').forEach(btn=>btn.onclick=()=>{const b=j.builds[Number(btn.dataset.useDiscovered)];clearBuildEditor();$('buildAliasConfig').value=b.suggested_alias;$('buildPathConfig').value=b.dir;$('buildAliasConfig').focus()});if(!j.builds.length)toast(`No ${buildExecutableName()} found under the selected root`,true)}catch(e){toast(e.message,true)}}
+
+async function showBuildDetails(alias){try{const j=await post('/api/build-details',{alias},{label:'Probing llama.cpp build...'});$('buildDetailsTitle').textContent='Build details: '+alias;const meta=[['Runtime',j.type==='docker'?'Docker image':'Native executable'],['Image',j.image||''],['Resolved image ID',j.image_id||''],['Executable',j.exe],['Reported build',j.build||'Unknown'],['Reported commit',j.commit||'Unknown'],['Reported compiler',j.compiler||'Unknown'],['Reported target',j.target||'Unknown'],['Device IDs',(j.devices||[]).map(d=>d.id+' - '+d.description).join('; ')||'None reported'],['Recognized options',(j.capabilities||[]).join(', ')||'None recognized'],['File size',j.size!=null?j.size+' bytes':'Unknown'],['Modified',j.modified?new Date(j.modified*1000).toLocaleString():'Unknown']];$('buildDetailsBody').innerHTML='<div class="muted">Version and commit are reported by this executable; they do not prove fork or branch identity.</div>'+meta.map(([k,v])=>`<div class="field" style="margin-top:9px"><b>${esc(k)}</b><span class="config-path">${esc(v)}</span></div>`).join('')+[['--version',j.version],['--list-devices',j.devices_raw],['--help',j.help]].map(([name,raw])=>`<details style="margin-top:12px"><summary>Raw ${esc(name)} output</summary><pre class="cmd">${esc(raw||'(no output)')}</pre></details>`).join('');openModal('buildDetailsModal')}catch(e){toast(e.message,true)}}
+
+async function saveModelRootValue(path,showToast=true){const j=await post('/api/model-root-save',{path},{label:'Saving model library...'});CFG.model_root=j.model_root;MODELS=j.models||[];$('rootPill').textContent=j.model_root||'Model root not set';$('modelRootPath').value=j.model_root;$('setupModelRoot').value=j.model_root;rebuildHierarchy();ensureAlias();if(showToast)toast('Model root updated');return j}
+
+function clearBuildEditor() { EDITING_BUILD_ALIAS=''; $('buildAliasConfig').value=''; $('buildPathConfig').value=''; $('buildEditorMode').textContent=''; }
+
+async function loadFolderBrowser(path){try{const j=await post('/api/fs-list',{path:path||'',include_files:FOLDER_BROWSER_FILES},{label:FOLDER_BROWSER_FILES?'Reading server files...':'Reading server folders...'});FOLDER_BROWSER_PATH=j.path||'';FOLDER_BROWSER_PARENT=j.parent||'';$('folderCurrentPath').textContent=FOLDER_BROWSER_PATH||'Server roots';$('folderUpBtn').disabled=!FOLDER_BROWSER_PARENT&&!FOLDER_BROWSER_PATH;let rows=(j.folders||[]).map(f=>`<button type="button" class="folder-entry" data-folder-path="${esc(f.path)}"><svg class="small-icon"><use href="#i-folder"></use></svg><span>${esc(f.name)}</span></button>`).join('');if(FOLDER_BROWSER_FILES)rows+=(j.files||[]).map(f=>`<button type="button" class="folder-entry" data-file-path="${esc(f.path)}"><svg class="small-icon"><use href="#i-file"></use></svg><span>${esc(f.name)}</span></button>`).join('');$('folderList').innerHTML=rows||`<span class="muted">${FOLDER_BROWSER_FILES?'No readable folders or files.':'No readable subfolders.'}</span>`;$('folderList').querySelectorAll('[data-folder-path]').forEach(btn=>btn.onclick=()=>loadFolderBrowser(btn.dataset.folderPath));$('folderList').querySelectorAll('[data-file-path]').forEach(btn=>btn.onclick=()=>{if(FOLDER_BROWSER_TARGET){$(FOLDER_BROWSER_TARGET).value=btn.dataset.filePath;closeModal('folderBrowserModal');updateCommand()}});$('folderUseBtn').classList.toggle('hidden',FOLDER_BROWSER_FILES);$('folderUseBtn').disabled=FOLDER_BROWSER_FILES||!FOLDER_BROWSER_PATH}catch(e){toast(e.message,true)}}
+
+async function browseFolderInto(inputId,title,initial){FOLDER_BROWSER_TARGET=inputId;FOLDER_BROWSER_FILES=false;$('folderBrowserTitle').textContent=title||'Select folder';openModal('folderBrowserModal');const start=(initial||'').trim();if(start){const j=await post('/api/fs-list',{path:start},{label:'Reading server folders...'}).catch(()=>null);if(j){await loadFolderBrowser(j.path||'');return}}await loadFolderBrowser('')}
+
+async function browseFileInto(inputId,title,initial){FOLDER_BROWSER_TARGET=inputId;FOLDER_BROWSER_FILES=true;$('folderBrowserTitle').textContent=title||'Select file';openModal('folderBrowserModal');let start=(initial||'').trim();if(CFG?.platform==='linux'){if(start&&!/\/$/.test(start))start=start.replace(/\/[^/]*$/,'')}else if(start&&!/[\\/]$/.test(start)){start=start.replace(/[\\/][^\\/]*$/,'')}if(start){const j=await post('/api/fs-list',{path:start,include_files:true},{label:'Reading server files...'}).catch(()=>null);if(j){await loadFolderBrowser(j.path||'');return}}await loadFolderBrowser('')}
+
+async function saveConfiguredBuild(){const alias=$('buildAliasConfig').value.trim(),path=$('buildPathConfig').value.trim();if(!alias||!path)return toast(BUILD_MANAGER_DOCKER?'Build alias and image are required':'Build alias and folder are required',true);try{const pending=SETUP_REQUIRED?$('setupModelRoot').value.trim():'';if(pending&&pending!==CFG.model_root)await saveModelRootValue(pending,false);const old=$('build').value;const j=await post('/api/build-save',{alias,path,type:BUILD_MANAGER_DOCKER?'docker':'native',image:BUILD_MANAGER_DOCKER?path:'',old_alias:EDITING_BUILD_ALIAS},{label:'Saving llama.cpp build...'});CFG.builds=j.builds||[];renderBuildSelector(alias||old);renderBuildManager();clearBuildEditor();updateSetup();await Promise.all([loadHelp(),loadDevices()]);updateCommand();toast('Build configuration saved')}catch(e){toast(e.message,true)}}

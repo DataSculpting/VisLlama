@@ -1,0 +1,26 @@
+<!-- Private page shell. Include order matters: controls exist before scripts bind IDs. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VisLlama {{APP_VERSION}}</title>
+<link rel="icon" type="image/png" href="/assets/img/favicon.png?v={{APP_VERSION}}" sizes="32x32">
+<link rel="shortcut icon" href="/assets/img/favicon.ico?v={{APP_VERSION}}">
+<link rel="apple-touch-icon" href="/assets/img/favicon.png">
+{{> partials/styles.html}}
+</head>
+<body>
+{{> partials/atmosphere.html}}<a class="skip-link" href="#workspace">Skip to workspace</a>
+{{> partials/splash.html}}{{> partials/icons.html}}{{> partials/header.html}}<div class="app-shell">
+{{> partials/navigation.html}}<div class="workspace" id="workspace" tabindex="-1">
+{{> pages/chat.html}}{{> pages/dashboard.html}}{{> pages/router.html}}{{> pages/models.html}}{{> pages/modelStats.html}}{{> pages/logs.html}}{{> pages/settings.html}}{{> pages/stats.html}}{{> pages/editor.html}}<main id="legacyMain" class="hidden">
+<section>
+{{> editor/identity.html}}{{> pages/installation.html}}{{> editor/model.html}}<div id="routerPane" class="hidden">
+{{> pages/router-settings.html}}{{> pages/router-catalog.html}}</section>
+<aside>
+{{> pages/diagnostics.html}}</aside>
+</main>
+</div></div>
+{{> partials/hardware.html}}{{> partials/footer.html}}{{> dialogs/build-manager.html}}
+{{> dialogs/engines.html}}{{> dialogs/build-details.html}}{{> dialogs/preset-overwrite.html}}{{> dialogs/folder-browser.html}}{{> partials/notifications.html}}{{> partials/scripts.html}}</body></html>

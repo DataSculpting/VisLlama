@@ -1,0 +1,17 @@
+<!-- Keep these controls mounted: collapsed sections still participate in presetData(). -->
+<details class="editor-section" id="editor-response" data-editor-section="response">
+<summary><span class="editor-section-number">04</span><span class="editor-section-heading"><span class="editor-section-title">Response & reasoning</span><span class="editor-section-summary" data-editor-summary="response">Set response length and thinking behavior. Support depends on the model and its chat template.</span></span><span class="editor-section-chevron" aria-hidden="true">+</span></summary>
+<div class="editor-section-body"><p class="editor-section-intro">Set response length and thinking behavior. Support depends on the model and its chat template.</p>
+<div class="grid editor-fields">
+<div class="field editor-setting"><label>Max generated tokens (--predict)</label><input id="predict" type="number" min="-1" placeholder="-1 = unlimited" name="visllama-model-predict" autocomplete="off"></div>
+<div class="field editor-setting"><label>Reasoning (--reasoning)</label><select id="reasoning" name="visllama-model-reasoning" autocomplete="off"><option value="">default</option><option value="auto">auto</option><option value="on">on</option><option value="off">off</option></select></div>
+<div class="field editor-setting"><label>Reasoning effort (--reasoning-effort)</label><select id="reasoningEffort" name="visllama-model-reasoningEffort" autocomplete="off"><option value="">model/template default</option><option>minimal</option><option>low</option><option>medium</option><option>high</option><option>xhigh</option><option>max</option></select><div class="small">Blank does not mean medium. Some model templates may choose a very high effort internally. Set an explicit level if you need predictable latency.</div></div>
+<div class="field editor-setting"><label>Reasoning token budget (--reasoning-budget)</label><input id="reasoningBudget" type="number" min="-1" placeholder="-1 = unrestricted" name="visllama-model-reasoningBudget" autocomplete="off"></div>
+</div>
+<details class="editor-advanced"><summary>Reasoning format & chat template</summary><div class="grid editor-fields">
+<div class="field editor-setting"><label>Reasoning output format (--reasoning-format)</label><select id="reasoningFormat" name="visllama-model-reasoningFormat" autocomplete="off"><option value="">default / auto</option><option>auto</option><option>none</option><option>deepseek</option><option>deepseek-legacy</option></select></div>
+<div class="field editor-setting"><label>Preserve reasoning history</label><select id="reasoningPreserve" name="visllama-model-reasoningPreserve" autocomplete="off"><option value="">template/build default</option><option value="on">on</option><option value="off">off</option></select></div>
+<div class="field editor-setting" style="grid-column:1/-1"><label>Custom chat template file (--chat-template-file)</label><div class="row"><input id="chatTemplateFile" style="flex:1" placeholder="Optional server-side .jinja / .jinja2 / .txt template path" name="visllama-model-chatTemplateFile" autocomplete="off"><button type="button" id="browseChatTemplate">Browse files</button><button type="button" id="clearChatTemplate">Clear</button></div><div class="small">Leave blank to use the model/build chat template. This path is saved per model/preset.</div></div>
+</div>
+</details>
+<p class="muted">External chat clients can override some generation settings per request.</p></div></details>

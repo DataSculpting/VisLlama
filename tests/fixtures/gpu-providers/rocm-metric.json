@@ -1,0 +1,18 @@
+{
+  "card0": {
+    "VRAM Total Memory (B)": "17179869184",
+    "VRAM Total Used Memory (B)": "2147483648",
+    "GPU use (%)": "0",
+    "Fan speed (%)": "0",
+    "Temperature (Sensor edge) (C)": "45",
+    "Average Graphics Package Power (W)": "72"
+  },
+  "card1": {
+    "VRAM Total Memory (B)": "17179869184",
+    "VRAM Total Used Memory (B)": "2147483648",
+    "GPU use (%)": "0",
+    "Fan speed (%)": "0",
+    "Temperature (Sensor edge) (C)": "45",
+    "Average Graphics Package Power (W)": "72"
+  }
+}

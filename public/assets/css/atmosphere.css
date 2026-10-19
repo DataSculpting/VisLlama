@@ -1,0 +1,6 @@
+/* Decorative cloud and mist layers behind the content. Pointer interaction
+   belongs to the application above them, not these background effects. */
+/* Instrument: one shared visual system for the embedded control console. */
+/* One continuous atmospheric backdrop; solid panels keep data legible. */
+body{isolation:isolate}.atmosphere-defs{position:absolute;pointer-events:none}.ambient-scene{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:#171c20}.ambient-scene>svg,.splash-atmosphere{display:block;width:100%;height:100%;pointer-events:none}.cloud-bank{transform-box:view-box;transform-origin:center}.cloud-bank-warm{opacity:.7;animation:cloudWarm 28s ease-in-out infinite alternate}.cloud-bank-cool{opacity:.55;animation:cloudCool 34s -12s ease-in-out infinite alternate}.cloud-bank-mist{opacity:.5;animation:cloudMist 23s -8s ease-in-out infinite alternate}.atmosphere-grain{opacity:.075;mix-blend-mode:soft-light}
+@keyframes cloudWarm{from{opacity:.35;transform:translate(-18px,-8px)}to{opacity:.82;transform:translate(30px,20px)}}@keyframes cloudCool{from{opacity:.28;transform:translate(24px,12px)}to{opacity:.74;transform:translate(-22px,-16px)}}@keyframes cloudMist{from{opacity:.25;transform:translate(-24px,8px)}to{opacity:.65;transform:translate(26px,-10px)}}

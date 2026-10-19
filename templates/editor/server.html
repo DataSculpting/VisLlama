@@ -1,0 +1,23 @@
+<!-- Keep these controls mounted: collapsed sections still participate in presetData(). -->
+<details class="editor-section" id="editor-performance" data-editor-section="performance">
+<summary><span class="editor-section-number">03</span><span class="editor-section-heading"><span class="editor-section-title">Performance & loading</span><span class="editor-section-summary" data-editor-summary="performance">Tune simultaneous requests and processing speed. Leave blank fields at their build defaults.</span></span><span class="editor-section-chevron" aria-hidden="true">+</span></summary>
+<div class="editor-section-body"><p class="editor-section-intro">Tune simultaneous requests and processing speed. Leave blank fields at their build defaults.</p>
+<div class="grid editor-fields">
+<div class="field editor-setting"><label>Parallel slots (--parallel)</label><input id="parallel" type="number" placeholder="auto" name="visllama-model-parallel" autocomplete="off"></div>
+<div class="field editor-setting"><label>Generation threads (--threads)</label><input id="threads" type="number" placeholder="auto" name="visllama-model-threads" autocomplete="off"></div>
+<div class="field editor-setting"><label>Batch threads (--threads-batch)</label><input id="threadsBatch" type="number" placeholder="same as threads" name="visllama-model-threadsBatch" autocomplete="off"></div>
+<div class="field editor-setting"><label>Batch size (--batch-size)</label><input id="batch" type="number" placeholder="2048" name="visllama-model-batch" autocomplete="off"></div>
+<div class="field editor-setting"><label>Physical batch (--ubatch-size)</label><input id="ubatch" type="number" placeholder="512" name="visllama-model-ubatch" autocomplete="off"></div>
+<label class="check editor-setting"><input id="flash" type="checkbox" name="visllama-model-flash" autocomplete="off"> Flash attention (--flash-attn on)</label>
+</div>
+<details class="editor-advanced"><summary>Loading & memory trade-offs</summary><div class="grid editor-fields">
+<div class="field editor-setting"><label>Load mode (--load-mode)</label><select id="loadMode" name="visllama-model-loadMode" autocomplete="off"><option value="">default</option><option>auto</option><option value="none">none (disable memory mapping)</option><option>mmap</option><option>mlock</option><option>mmap+mlock</option><option>dio</option></select></div>
+<div class="field editor-setting"><label>Lazy tensor mode (--lazy-mode)</label><select id="lazyMode" name="visllama-model-lazyMode" autocomplete="off"><option value="">default</option><option>auto</option><option>on</option><option>off</option></select></div>
+<label class="check editor-setting"><input id="cpuMoe" type="checkbox" name="visllama-model-cpuMoe" autocomplete="off"> Keep MoE experts on CPU (--cpu-moe)</label>
+<label class="check editor-setting"><input id="noKvOffload" type="checkbox" name="visllama-model-noKvOffload" autocomplete="off"> Disable KV offload (--no-kv-offload)</label>
+<label class="check editor-setting"><input id="swaFull" type="checkbox" name="visllama-model-swaFull" autocomplete="off"> Full SWA cache (--swa-full)</label>
+<label class="check editor-setting"><input id="noWarmup" type="checkbox" name="visllama-model-noWarmup" autocomplete="off"> Disable warmup (--no-warmup)</label>
+</div>
+</details>
+<div id="directServiceFields" class="field editor-setting" style="grid-column:1/-1"><label>Direct single-model server only</label><small>Router models use the public host and port in Settings; VisLlama assigns internal ports automatically.</small><div class="grid"><div class="field"><label>Direct host (--host)</label><input id="host" value="127.0.0.1" name="visllama-model-host" autocomplete="off"></div><div class="field"><label>Direct port (--port)</label><input id="port" type="number" value="8080" name="visllama-model-port" autocomplete="off"></div><div class="field"><label>Direct HTTP threads (--threads-http)</label><input id="threadsHttp" type="number" placeholder="auto" name="visllama-model-threadsHttp" autocomplete="off"></div></div></div>
+</div></details>

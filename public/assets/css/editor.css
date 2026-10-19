@@ -1,0 +1,74 @@
+/* Model editor only. The existing dark gray/amber shell stays authoritative.
+   Native details provide keyboard disclosure without cloning any form controls. */
+#singlePane,#singlePane.editor-open{max-width:1180px;margin-inline:auto;min-width:0}
+#singlePane .editor-toolbar{position:sticky;top:var(--header-height);z-index:10;background:#20272b;padding:14px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.editor-save-note{font-size:12px;color:var(--muted);margin:8px 0 22px}
+/* Secondary amber action keeps ordinary Save visually dominant. Disabled
+   buttons retain the shared disabled palette rather than this enabled tint. */
+#singlePane .editor-load-action:not(:disabled){background:#51442f;border-color:#94764b;color:#f0d4a4}
+#singlePane .editor-load-action:hover:not(:disabled){background:#665237;border-color:#bc955c}
+#singlePane .editor-load-action:active:not(:disabled){background:#735d3c}
+.editor-model-status{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;font-size:12px;color:var(--muted)}
+@media(max-width:800px){#singlePane .editor-model-status{flex-basis:100%;padding-bottom:4px}}
+.editor-guide{margin:0 0 20px;border-left:3px solid var(--accent);padding:2px 18px}
+.editor-guide h2{font-size:18px;margin:0 0 7px}.editor-guide p{color:var(--muted);max-width:76ch;line-height:1.6;margin:0}
+.editor-findbar{display:flex;align-items:end;gap:8px;flex-wrap:wrap;margin:24px 0 10px}
+.editor-search-field{flex:1 1 280px;min-width:0}.editor-search-field label{display:block;font-size:12px;margin-bottom:7px;color:var(--text)}
+.editor-findbar>p{flex-basis:100%;margin:0;font-size:12px;color:var(--muted);line-height:1.6}
+.editor-build-note{display:flex;align-items:center;gap:16px;justify-content:space-between;padding:14px 0 20px;font-size:12px;line-height:1.6;color:var(--muted)}
+.editor-build-note button{flex:none;font-size:12px}
+.editor-section{background:#20272b;border:1px solid var(--line);border-radius:4px;margin:0 0 10px;min-width:0;scroll-margin-top:calc(var(--header-height) + 100px)}
+.editor-section>summary{display:flex;align-items:center;gap:16px;padding:18px;list-style:none;min-height:78px;cursor:pointer;user-select:none}
+.editor-section>summary::-webkit-details-marker{display:none}
+.editor-section>summary:hover{background:#2a3236}.editor-section>summary:focus-visible,.editor-advanced>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.editor-section[open]>summary{border-bottom:1px solid var(--line);background:#2b3030}
+.editor-section-number{font:12px var(--mono);color:var(--accent);align-self:flex-start;margin-top:3px}
+.editor-section-heading{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.editor-section-title{font-size:15px;font-weight:650;color:#e5e9e8}.editor-section-summary{font-size:12px;color:#b6c1c7;line-height:1.5;overflow-wrap:anywhere;font-weight:400}
+.editor-section-chevron{font:23px var(--mono);color:var(--accent)}.editor-section[open]>summary .editor-section-chevron{transform:rotate(45deg)}
+.editor-section-body{padding:20px}.editor-section-intro{color:var(--muted);line-height:1.6;margin:0 0 22px;max-width:78ch}
+#singlePane .editor-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 28px;align-items:start}
+#singlePane .field{min-width:0}#singlePane .editor-setting>label{line-height:1.5;color:#e2e7e6}
+.editor-flag{display:block;font:10px/1.6 var(--mono);color:#a9b8c1;margin-top:3px;overflow-wrap:anywhere}
+#singlePane .editor-setting small,#singlePane .editor-setting .small{line-height:1.6;margin-top:6px}
+.editor-advanced{border-top:1px solid var(--line);margin-top:24px;padding-top:4px}
+.editor-advanced>summary{padding:14px 2px;font-size:13px;color:#d9c39c;cursor:pointer}
+.editor-advanced[open]>summary{margin-bottom:12px}.editor-value-count{color:#b6c1c7;font-size:11px;font-weight:400}
+#singlePane .editor-capability{display:block;color:#e7c388;border-left:2px solid #ac854c;padding-left:8px;font-size:11px}
+#singlePane h3{font-size:14px;margin:26px 0 16px}
+/* Search owns a separate class so it cannot override mode-dependent .hidden.
+   Disabled styling continues to be controlled by the shared button/input rules. */
+#singlePane .editor-search-hidden{display:none!important}
+#singlePane .opt{min-width:0}#singlePane .opt .sig{overflow-wrap:anywhere}
+#singlePane .cmd{max-width:100%;overflow:auto}
+@media(max-width:800px){
+ #singlePane .editor-toolbar{position:static;padding-top:0}.editor-build-note{align-items:flex-start;flex-direction:column;gap:10px}
+ #singlePane .editor-fields{gap:20px}.editor-section>summary{padding:16px;gap:12px}.editor-section-body{padding:16px}
+}
+@media(max-width:560px){
+ #singlePane .editor-fields,#singlePane #editorIdentityGrid{grid-template-columns:minmax(0,1fr)}
+ #singlePane .editor-toolbar>div{flex-basis:100%}#singlePane .editor-toolbar>button{flex:1 1 auto;min-height:44px}
+ .editor-search-field{flex-basis:100%}.editor-findbar>button{flex:1;min-height:44px;font-size:12px}
+ .editor-section-number{display:none}.editor-section-summary{font-size:11px}.editor-section-body{padding:16px 12px}
+ #singlePane .field .row{flex-wrap:wrap}#singlePane .field .row input{min-width:100%;flex-basis:100%}
+ #singlePane .device-item{flex-wrap:wrap}#singlePane .device-desc{overflow-wrap:anywhere}
+}
+
+/* A failed/pending probe must not present stale build options as current. */
+#singlePane .editor-help-pending{opacity:.5;pointer-events:none}
+
+/* Keep GPU ordering readable on wide screens. The list remains full width when
+   its container is narrower than this cap, and stays against the left edge. */
+#singlePane #device{width:100%;max-width:38rem;align-self:flex-start}
+#singlePane #device .device-grip{flex:0 0 14px}
+#singlePane #device .device-item>label.row{flex-wrap:nowrap;justify-content:flex-start}
+#singlePane #device .device-item>label.row>span{min-width:0}
+/* Override generic .field .row input flex sizing, including the mobile rule:
+   a checkbox must not grow into the text-input space or force its own row. */
+#singlePane #device input[type=checkbox]{flex:0 0 17px;width:17px;min-width:17px;max-width:17px;align-self:center}
+#singlePane #device .device-actions{flex-shrink:0}
+
+/* Duplicate aliases warn without making a valid name an invalid field. */
+.preset-name-warning{color:var(--warn);font-size:12px;line-height:1.5;margin-top:6px;overflow-wrap:anywhere}
+.editor-title.preset-name-conflict{color:var(--warn)}
+#alias.preset-name-conflict{border-color:var(--warn);box-shadow:0 0 0 1px var(--warn)}

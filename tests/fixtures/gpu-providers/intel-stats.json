@@ -1,0 +1,25 @@
+{
+  "device_index": 0,
+  "pci_bdf": "0000:0d:00.0",
+  "memory": {
+    "used_mib": {
+      "tile_0": {
+        "current": 2048,
+        "avg": 2048
+      }
+    }
+  },
+  "temperature": {
+    "gpu_core_celsius": {
+      "tile_0": {
+        "current": 45,
+        "avg": 45
+      }
+    }
+  },
+  "utilization": {
+    "gpu_percent": {
+      "tile_0": 0
+    }
+  }
+}

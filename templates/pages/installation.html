@@ -1,0 +1,5 @@
+<!-- Server-side build/model-root configuration, independent of individual presets. -->
+<div class="card" id="installConfigCard"><div class="row"><h2 style="margin-right:auto">GGUF model root</h2><span class="muted">Model library location</span></div>
+<div class="field"><label>GGUF model root</label><div class="row"><input id="modelRootPath" style="flex:1" placeholder="Select your GGUF library folder"><button type="button" id="browseModelRoot">Browse folders</button><button type="button" class="primary" id="saveModelRoot"><svg class="small-icon"><use href="#i-save"></use></svg> Save model root</button></div><div id="modelRootConfigPath" class="muted"></div></div>
+</div>
+<div class="card" id="buildConfigCard"><div class="row"><h2 style="margin-right:auto">Engine builds</h2><span id="buildCount" class="pill">0 configured</span><button type="button" id="openBuildManager">Manage builds</button></div><p class="muted">Manage the installed engines and builds that individual models can use.</p><span id="buildConfigPath" class="muted"></span></div>

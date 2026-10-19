@@ -1,0 +1,643 @@
+{
+  "schema_version": "1.1",
+  "definition_version": "1.2.0",
+  "id": "strata",
+  "name": "Strata \u2014 native JSON server",
+  "description": "Configure prepared Strata models, GPU layer/pipeline sharing, request slots, context/cache and memory. Strata documents layer/pipeline parallelism, not tensor parallelism. Device placement stays engine-native and unverified.",
+  "platforms": [
+    "windows",
+    "linux"
+  ],
+  "driver": "native-json",
+  "concurrency": "unverified",
+  "argv": [
+    "${executable}",
+    "${root}/serve/server.py",
+    "--engine",
+    "strata",
+    "--config",
+    "${runtime_config}",
+    "--host",
+    "${host}",
+    "--port",
+    "${port}"
+  ],
+  "probe": {
+    "argv": [
+      "${executable}",
+      "${root}/serve/server.py",
+      "--help"
+    ],
+    "timeout": 10,
+    "required_flags": [
+      "--engine",
+      "--config",
+      "--host",
+      "--port"
+    ]
+  },
+  "fields": [
+    {
+      "key": "model-format",
+      "label": "Prepared model format",
+      "type": "string",
+      "enum": [
+        "native",
+        "pack"
+      ],
+      "initial": "native",
+      "binding": "none",
+      "description": "Native model file or prepared pack directory. Create mode maps the selected catalog model path into the matching native argument.",
+      "source": "serve/server.py model_path: --native / --pack",
+      "group": "Model files"
+    },
+    {
+      "key": "native-executable",
+      "label": "Native engine executable",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "exe"
+      ],
+      "file_kind": "file",
+      "description": "Usually strata.exe on Windows. Separate from the Python server interpreter. The registered native executable is used when this is blank.",
+      "required": true,
+      "group": "Model files"
+    },
+    {
+      "key": "model-architecture",
+      "label": "Model architecture / family",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "arch"
+      ],
+      "description": "Optional Strata architecture name for server/model behavior. Leave unset to retain its native default. This does not establish model compatibility.",
+      "source": "serve/server.py cfg.arch and default_model_name",
+      "group": "Model files"
+    },
+    {
+      "key": "working-directory",
+      "label": "Working directory",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "cwd"
+      ],
+      "file_kind": "directory",
+      "description": "Blank uses the registered installation directory in Create mode.",
+      "group": "Model files"
+    },
+    {
+      "key": "tokenizer-directory",
+      "label": "Tokenizer directory",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "tokenizer"
+      ],
+      "file_kind": "directory",
+      "required": true,
+      "description": "Prepared tokenizer directory containing vocab.json, merges.txt and token_type.json.",
+      "group": "Model files"
+    },
+    {
+      "key": "native-arguments",
+      "label": "Additional native arguments (JSON array)",
+      "type": "json-array",
+      "binding": "config",
+      "path": [
+        "args"
+      ],
+      "description": "Optional argument tokens, for example [\"--option\", \"value\"]. Model path is added automatically in Create mode. Unknown imported tokens are retained.",
+      "group": "Advanced arguments"
+    },
+    {
+      "key": "native-library-directories",
+      "label": "Native library directories (JSON array)",
+      "type": "json-array",
+      "binding": "config",
+      "path": [
+        "lib_dirs"
+      ],
+      "description": "DLL/shared-library search directories. Blank uses the registered build defaults in Create mode; imported values are preserved.",
+      "group": "Model files"
+    },
+    {
+      "key": "reasoning-effort",
+      "label": "Default reasoning effort",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "reasoning_effort"
+      ],
+      "source": "serve/server.py; model/build-dependent",
+      "group": "Output defaults"
+    },
+    {
+      "key": "fit-max-tokens",
+      "label": "Fit output tokens to context",
+      "type": "boolean",
+      "binding": "config",
+      "path": [
+        "fit_max_tokens"
+      ],
+      "source": "serve/server.py",
+      "group": "Output defaults"
+    },
+    {
+      "key": "gpu-selection",
+      "label": "GPU selection (Strata device numbers)",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "gpu"
+      ],
+      "group": "GPU sharing",
+      "description": "One GPU or comma-separated GPUs, e.g. 0,2. Passed to Strata as entered; VisLlama does not verify placement or reinterpret these as llama.cpp CUDA ordinals.",
+      "source": "Reviewed serve/server.py configuration mapping",
+      "format": "integer-csv"
+    },
+    {
+      "key": "gpu-order",
+      "label": "GPU order",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "gpu_order"
+      ],
+      "group": "GPU sharing",
+      "description": "Use native setting for Strata ordering, or as_given to retain the entered order.",
+      "source": "Reviewed serve/server.py configuration mapping",
+      "enum": [
+        "as_given"
+      ]
+    },
+    {
+      "key": "layer-split",
+      "label": "Layer / pipeline split points",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "layer_split"
+      ],
+      "group": "GPU sharing",
+      "description": "auto, or the first layer on each later GPU, e.g. 18 or 16,32. These are boundaries, not layer counts. Requires several selected GPUs. Strata verifies compatibility.",
+      "source": "Reviewed serve/server.py configuration mapping",
+      "format": "auto-or-integer-csv",
+      "support": {
+        "probe": "native",
+        "flag": "--layer-split"
+      }
+    },
+    {
+      "key": "split-skip-if-fits",
+      "label": "Use one GPU when the model fits",
+      "type": "boolean",
+      "binding": "config",
+      "path": [
+        "split_skip_if_fits"
+      ],
+      "group": "GPU sharing",
+      "description": "Strata may use the first selected GPU alone with an automatic split when it fits.",
+      "source": "Reviewed serve/server.py configuration mapping",
+      "support": {
+        "probe": "native",
+        "flag": "--split-skip-if-fits"
+      },
+      "clear_flags": [
+        {
+          "flag": "--split-skip-if-fits",
+          "takes_value": false
+        }
+      ],
+      "legacy_keys": [
+        "discovered-native-split-skip-if-fits"
+      ]
+    },
+    {
+      "key": "parallel-requests",
+      "label": "Concurrent request slots",
+      "type": "integer",
+      "binding": "config",
+      "path": [
+        "parallel"
+      ],
+      "group": "Parallel requests",
+      "description": "Requests decoded together; this is request batching, separate from GPU parallelism. Choosing this replaces imported --batch/--slots arguments in the generated configuration.",
+      "source": "Reviewed serve/server.py configuration mapping",
+      "minimum": 1,
+      "support": {
+        "probe": "native",
+        "flag": "--batch"
+      },
+      "clear_flags": [
+        {
+          "flag": "--batch",
+          "takes_value": true
+        },
+        {
+          "flag": "--slots",
+          "takes_value": true
+        }
+      ],
+      "legacy_keys": [
+        "discovered-native-batch",
+        "discovered-native-slots"
+      ]
+    },
+    {
+      "key": "max-context",
+      "label": "Context size (tokens)",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--max-context",
+      "group": "Context and cache",
+      "description": "Full model context limit, not the resident KV window.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--max-context"
+      },
+      "minimum": 1,
+      "legacy_keys": [
+        "discovered-native-max-context"
+      ]
+    },
+    {
+      "key": "kv-format",
+      "label": "KV cache format",
+      "type": "string",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--kv",
+      "group": "Context and cache",
+      "description": "Engine-native format, e.g. int8, q4_0 or k8v4 when supported. Leave blank for the build default.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--kv"
+      },
+      "legacy_keys": [
+        "discovered-native-kv"
+      ]
+    },
+    {
+      "key": "kv-resident",
+      "label": "Resident KV window (tokens)",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--kv-resident",
+      "group": "Context and cache",
+      "description": "Size of the KV window kept resident. This is not the full context size.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--kv-resident"
+      },
+      "minimum": 0,
+      "legacy_keys": [
+        "discovered-native-kv-resident"
+      ]
+    },
+    {
+      "key": "rope-scaling",
+      "label": "RoPE scaling",
+      "type": "string",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--rope-scaling",
+      "group": "Context and cache",
+      "description": "Use a scaling mode supported by this model/build.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--rope-scaling"
+      },
+      "enum": [
+        "none",
+        "linear",
+        "yarn"
+      ],
+      "legacy_keys": [
+        "discovered-native-rope-scaling"
+      ]
+    },
+    {
+      "key": "rope-scale",
+      "label": "RoPE scale factor",
+      "type": "number",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--rope-scale",
+      "group": "Context and cache",
+      "description": "Explicit scaling factor; the model and engine must support the selected context.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--rope-scale"
+      },
+      "minimum": 1,
+      "legacy_keys": [
+        "discovered-native-rope-scale"
+      ]
+    },
+    {
+      "key": "vram-reserve",
+      "label": "VRAM reserve (MiB)",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--vram-reserve-mib",
+      "group": "Memory",
+      "description": "Native engine reserve for other programs. Does not enable VisLlama Calculated planning.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--vram-reserve-mib"
+      },
+      "minimum": 0,
+      "legacy_keys": [
+        "discovered-native-vram-reserve-mib"
+      ]
+    },
+    {
+      "key": "vram-reserve-later",
+      "label": "Later GPUs VRAM reserve (MiB)",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--vram-reserve-later-mib",
+      "group": "Memory",
+      "description": "Separate native reserve for later layer-split GPUs.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--vram-reserve-later-mib"
+      },
+      "minimum": 0,
+      "legacy_keys": [
+        "discovered-native-vram-reserve-later-mib"
+      ]
+    },
+    {
+      "key": "resident-experts",
+      "label": "Keep experts in resident RAM",
+      "type": "boolean",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--resident-experts",
+      "group": "Memory",
+      "description": "Native resident expert-memory mode. Enabling it replaces an imported --mmap-experts flag in generated arguments.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--resident-experts"
+      },
+      "clear_flags": [
+        {
+          "flag": "--mmap-experts",
+          "takes_value": false
+        }
+      ],
+      "legacy_keys": [
+        "discovered-native-resident-experts"
+      ]
+    },
+    {
+      "key": "resident-budget",
+      "label": "Resident expert RAM budget (GiB)",
+      "type": "number",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--resident-budget-gib",
+      "group": "Memory",
+      "description": "Native RAM budget for resident experts. This does not download or repack a model.",
+      "source": "Upstream Strata docs; installed native --help verifies flag support",
+      "support": {
+        "probe": "native",
+        "flag": "--resident-budget-gib"
+      },
+      "minimum": 0,
+      "legacy_keys": [
+        "discovered-native-resident-budget-gib"
+      ]
+    },
+    {
+      "key": "vram-elastic",
+      "label": "Elastic VRAM expert cache",
+      "type": "boolean",
+      "binding": "config",
+      "path": [
+        "vram_elastic"
+      ],
+      "group": "Memory",
+      "description": "Allow Strata native elastic-cache behavior when supported by the model and engine.",
+      "source": "Reviewed serve/server.py configuration mapping",
+      "support": {
+        "probe": "native",
+        "flag": "--vram-elastic"
+      },
+      "clear_flags": [
+        {
+          "flag": "--vram-elastic",
+          "takes_value": false
+        }
+      ],
+      "legacy_keys": [
+        "discovered-native-vram-elastic"
+      ]
+    },
+    {
+      "key": "vram-segment",
+      "label": "Elastic VRAM segment (MiB)",
+      "type": "integer",
+      "binding": "config",
+      "path": [
+        "vram_segment_mib"
+      ],
+      "group": "Memory",
+      "description": "Native segment size, applied when elastic VRAM is enabled.",
+      "source": "Reviewed serve/server.py configuration mapping",
+      "minimum": 1,
+      "when": {
+        "key": "vram-elastic",
+        "equals": true
+      },
+      "support": {
+        "probe": "native",
+        "flag": "--vram-elastic"
+      },
+      "clear_flags": [
+        {
+          "flag": "--vram-segment-mib",
+          "takes_value": true
+        }
+      ],
+      "legacy_keys": [
+        "discovered-native-vram-segment-mib"
+      ]
+    }
+  ],
+  "config_overrides": {
+    "model_name": "${alias}",
+    "host": "${host}",
+    "open_browser": false,
+    "log": "${native_log}",
+    "lazy_load": false,
+    "idle_unload_s": 0
+  },
+  "readiness": {
+    "path": "/health",
+    "equals": {
+      "status": "ok",
+      "loaded": true,
+      "service": "strata"
+    }
+  },
+  "evidence": "Source review: Niko1221/Strata serve/server.py blob 2e805773dc56788bfe2f899bc7a78f20bd6db553. No hardware acceptance. Compatible versions share this contract; re-scan each installed build. Configuration creation uses server source keys exe/args/cwd/tokenizer and --native/--pack model selectors. Native option controls require installed-build discovery; no upstream native help could be retrieved in this session. Per-model option sources: docs/MULTI_GPU.md blob 30e316d527d47b5cf2b24b1fcde9c63056a73937; docs/DETAILS.md blob 5c5724f121db8778b038c58e36d4f59787384f0e; docs/INSTALL.md blob 1a7a430951281538154a9d13f1cacb060a2d3b6b. Native controls require installed-build flag evidence.",
+  "fingerprint_files": [
+    "serve/server.py"
+  ],
+  "compatible_definition_digests": [
+    "789653ffdb5dd5f2274e37b6efaee789ec45435bf9493be462acaeb3db294cd1",
+    "27abac734b6228aafe54c81aa8b6f4291d957b023315ff88d2802194a3bca4fc"
+  ],
+  "new_config": {
+    "exe": "${runtime_executable}",
+    "cwd": "${root}",
+    "args": [],
+    "lib_dirs": "${runtime_library_dirs}"
+  },
+  "model_bindings": [
+    {
+      "key": "model-format",
+      "equals": "native",
+      "path": [
+        "args"
+      ],
+      "flag": "--native",
+      "kind": "file"
+    },
+    {
+      "key": "model-format",
+      "equals": "pack",
+      "path": [
+        "args"
+      ],
+      "flag": "--pack",
+      "kind": "directory"
+    }
+  ],
+  "requirements": [
+    {
+      "path": [
+        "exe"
+      ],
+      "kind": "file",
+      "label": "Native engine executable"
+    },
+    {
+      "path": [
+        "tokenizer"
+      ],
+      "kind": "directory",
+      "label": "Tokenizer directory",
+      "children": [
+        "vocab.json",
+        "merges.txt",
+        "token_type.json"
+      ]
+    },
+    {
+      "path": [
+        "args"
+      ],
+      "kind": "array",
+      "label": "Native model arguments"
+    }
+  ],
+  "discovery": [
+    {
+      "id": "server",
+      "argv": [
+        "${executable}",
+        "${root}/serve/server.py",
+        "--help"
+      ],
+      "timeout": 10,
+      "parser": "help",
+      "target": "flag",
+      "exclude": [
+        "--engine",
+        "--config",
+        "--host",
+        "--port",
+        "--script",
+        "--gpu",
+        "--tokenizer",
+        "--open",
+        "--fit-max-tokens",
+        "--reasoning-effort",
+        "--lazy",
+        "--idle-unload",
+        "--api-key",
+        "--before-load",
+        "--replicas",
+        "--api-monitor",
+        "--mcp-config",
+        "--slot-save-path",
+        "--min-free-vram-mib",
+        "--help"
+      ]
+    },
+    {
+      "id": "native",
+      "argv": [
+        "${runtime_executable}",
+        "--help"
+      ],
+      "timeout": 10,
+      "parser": "help",
+      "target": "config-flag",
+      "path": [
+        "args"
+      ],
+      "exclude": [
+        "--native",
+        "--pack",
+        "--help",
+        "--version",
+        "--serve",
+        "--port",
+        "--host",
+        "--log",
+        "--tokenizer",
+        "--model"
+      ]
+    }
+  ],
+  "runtime_executable_path": [
+    "exe"
+  ]
+}

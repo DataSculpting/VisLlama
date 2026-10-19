@@ -1,0 +1,11 @@
+{
+  "device_list": [
+    {
+      "device_id": 0,
+      "device_name": "Synthetic Intel",
+      "device_type": "Discrete GPU",
+      "uuid": "11111111-1111-1111-1111-111111111111",
+      "pci_bdf_address": "0000:0d:00.0"
+    }
+  ]
+}

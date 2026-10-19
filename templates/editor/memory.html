@@ -1,0 +1,19 @@
+<!-- Keep these controls mounted: collapsed sections still participate in presetData(). -->
+<details class="editor-section" id="editor-context" data-editor-section="context">
+<summary><span class="editor-section-number">01</span><span class="editor-section-heading"><span class="editor-section-title">Context & memory</span><span class="editor-section-summary" data-editor-summary="context">Set how much conversation the model can hold. Larger context windows use more memory.</span></span><span class="editor-section-chevron" aria-hidden="true">+</span></summary>
+<div class="editor-section-body"><p class="editor-section-intro">Set how much conversation the model can hold. Larger context windows use more memory.</p>
+<div class="grid editor-fields">
+<div class="field editor-setting"><label>Context size (--ctx-size)</label><input id="ctx" type="number" placeholder="model default" name="visllama-model-ctx" autocomplete="off"></div>
+<div class="field editor-setting"><label>Context limit behavior</label><select id="contextShift" name="visllama-model-contextShift" autocomplete="off"><option value="">build/model default</option><option value="shift">shift old context and continue</option><option value="stop">stop when context is full</option></select></div>
+<div class="field editor-setting"><label>KV cache K type (--cache-type-k)</label><select id="cacheK" name="visllama-model-cacheK" autocomplete="off"><option value="">default</option><option>f32</option><option>f16</option><option>bf16</option><option>q8_0</option><option>q4_0</option><option>q4_1</option><option>iq4_nl</option><option>q5_0</option><option>q5_1</option></select></div>
+<div class="field editor-setting"><label>KV cache V type (--cache-type-v)</label><select id="cacheV" name="visllama-model-cacheV" autocomplete="off"><option value="">default</option><option>f32</option><option>f16</option><option>bf16</option><option>q8_0</option><option>q4_0</option><option>q4_1</option><option>iq4_nl</option><option>q5_0</option><option>q5_1</option></select></div>
+</div>
+<details class="editor-advanced"><summary>Context limits & cache layout</summary><div class="grid editor-fields">
+<div class="field editor-setting"><label>Tokens retained on context shift (--keep)</label><input id="contextKeep" type="number" min="-1" step="1" placeholder="0; -1 = retain full initial prompt" name="visllama-model-contextKeep" autocomplete="off"></div>
+<div class="field editor-setting"><label>KV layout (--kv-unified / --no-kv-unified)</label><select id="kvUnified" name="visllama-model-kvUnified" autocomplete="off"><option value="">build default</option><option value="on">unified/shared KV</option><option value="off">separate per-slot KV</option></select></div>
+<div class="field editor-setting"><label>Per-slot context cap (--kv-unified-per-slot)</label><input id="kvUnifiedPerSlot" type="number" min="1" step="1" placeholder="unset" name="visllama-model-kvUnifiedPerSlot" autocomplete="off"></div>
+<div class="field editor-setting"><label>RoPE scaling (--rope-scaling)</label><select id="ropeScaling" name="visllama-model-ropeScaling" autocomplete="off"><option value="">model default</option><option value="none">none</option><option value="linear">linear</option><option value="yarn">yarn</option></select></div>
+<div class="field editor-setting"><label>RoPE frequency base (--rope-freq-base)</label><input id="ropeFreqBase" type="number" min="0" step="1" placeholder="model default" name="visllama-model-ropeFreqBase" autocomplete="off"></div>
+</div>
+</details>
+</div></details>

@@ -1,0 +1,37 @@
+<!-- Keep these controls mounted: collapsed sections still participate in presetData(). -->
+<details class="editor-section" id="editor-sampling" data-editor-section="sampling">
+<summary><span class="editor-section-number">05</span><span class="editor-section-heading"><span class="editor-section-title">Sampling & repetition</span><span class="editor-section-summary" data-editor-summary="sampling">Adjust response variation. You can keep the model defaults until you need finer control.</span></span><span class="editor-section-chevron" aria-hidden="true">+</span></summary>
+<div class="editor-section-body"><p class="editor-section-intro">Adjust response variation. You can keep the model defaults until you need finer control.</p>
+<div class="grid editor-fields">
+<div class="field editor-setting"><label>Temperature (--temperature)</label><input id="temperature" type="number" min="0" step="0.01" placeholder="0.80" name="visllama-model-temperature" autocomplete="off"></div>
+<div class="field editor-setting"><label>Top P (--top-p)</label><input id="topP" type="number" min="0" max="1" step="0.01" placeholder="0.95" name="visllama-model-topP" autocomplete="off"></div>
+<div class="field editor-setting"><label>Top K (--top-k)</label><input id="topK" type="number" min="0" step="1" placeholder="40" name="visllama-model-topK" autocomplete="off"></div>
+<div class="field editor-setting"><label>Min P (--min-p)</label><input id="minP" type="number" min="0" max="1" step="0.001" placeholder="0.05" name="visllama-model-minP" autocomplete="off"></div>
+</div>
+<details class="editor-advanced"><summary>Repetition penalties</summary><div class="grid editor-fields">
+<div class="field editor-setting"><label>Repeat penalty (--repeat-penalty)</label><input id="repeatPenalty" type="number" min="0" step="0.01" placeholder="1.0" name="visllama-model-repeatPenalty" autocomplete="off"></div>
+<div class="field editor-setting"><label>Repeat window (--repeat-last-n)</label><input id="repeatLastN" type="number" min="0" step="1" placeholder="64" name="visllama-model-repeatLastN" autocomplete="off"></div>
+<div class="field editor-setting"><label>Presence penalty (--presence-penalty)</label><input id="presencePenalty" type="number" step="0.01" placeholder="0.0" name="visllama-model-presencePenalty" autocomplete="off"></div>
+<div class="field editor-setting"><label>Frequency penalty (--frequency-penalty)</label><input id="frequencyPenalty" type="number" step="0.01" placeholder="0.0" name="visllama-model-frequencyPenalty" autocomplete="off"></div>
+<div class="field editor-setting"><label>DRY multiplier (--dry-multiplier)</label><input id="dryMultiplier" type="number" min="0" step="0.01" placeholder="0.0 = disabled" name="visllama-model-dryMultiplier" autocomplete="off"></div>
+<div class="field editor-setting"><label>DRY base (--dry-base)</label><input id="dryBase" type="number" min="0" step="0.01" placeholder="1.75" name="visllama-model-dryBase" autocomplete="off"></div>
+<div class="field editor-setting"><label>DRY allowed length (--dry-allowed-length)</label><input id="dryAllowedLength" type="number" min="0" step="1" placeholder="2" name="visllama-model-dryAllowedLength" autocomplete="off"></div>
+<div class="field editor-setting"><label>DRY penalty window (--dry-penalty-last-n)</label><input id="dryPenaltyLastN" type="number" min="0" step="1" placeholder="64" name="visllama-model-dryPenaltyLastN" autocomplete="off"></div>
+</div>
+</details>
+<details class="editor-advanced"><summary>Advanced sampling</summary><div class="grid editor-fields">
+<div class="field editor-setting"><label>Typical P (--typical-p)</label><input id="typicalP" type="number" min="0" max="1" step="0.01" placeholder="1.0 = disabled" name="visllama-model-typicalP" autocomplete="off"></div>
+<div class="field editor-setting"><label>Top N sigma (--top-nsigma)</label><input id="topNSigma" type="number" step="0.01" placeholder="-1 = disabled" name="visllama-model-topNSigma" autocomplete="off"></div>
+<div class="field editor-setting"><label>XTC probability (--xtc-probability)</label><input id="xtcProbability" type="number" min="0" max="1" step="0.01" placeholder="0.0" name="visllama-model-xtcProbability" autocomplete="off"></div>
+<div class="field editor-setting"><label>XTC threshold (--xtc-threshold)</label><input id="xtcThreshold" type="number" min="0" max="1" step="0.01" placeholder="0.1" name="visllama-model-xtcThreshold" autocomplete="off"></div>
+<div class="field editor-setting"><label>Dynamic temp range (--dynatemp-range)</label><input id="dynatempRange" type="number" min="0" step="0.01" placeholder="0.0" name="visllama-model-dynatempRange" autocomplete="off"></div>
+<div class="field editor-setting"><label>Dynamic temp exponent (--dynatemp-exp)</label><input id="dynatempExp" type="number" min="0" step="0.01" placeholder="1.0" name="visllama-model-dynatempExp" autocomplete="off"></div>
+<div class="field editor-setting"><label>Mirostat (--mirostat)</label><select id="mirostat" name="visllama-model-mirostat" autocomplete="off"><option value="">default</option><option value="0">off</option><option value="1">Mirostat 1</option><option value="2">Mirostat 2</option></select></div>
+<div class="field editor-setting"><label>Mirostat learning rate (--mirostat-lr)</label><input id="mirostatLR" type="number" min="0" step="0.01" placeholder="0.10" name="visllama-model-mirostatLR" autocomplete="off"></div>
+<div class="field editor-setting"><label>Mirostat target entropy (--mirostat-ent)</label><input id="mirostatEnt" type="number" min="0" step="0.01" placeholder="5.0" name="visllama-model-mirostatEnt" autocomplete="off"></div>
+<div class="field editor-setting"><label>RNG seed (--seed)</label><input id="seed" type="number" placeholder="-1 = random" name="visllama-model-seed" autocomplete="off"></div>
+<div class="field editor-setting" style="grid-column:1/-1"><label>Sampler order (--samplers)</label><input id="samplers" placeholder="penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature" name="visllama-model-samplers" autocomplete="off"></div>
+<label class="check editor-setting" style="margin-top:10px"><input id="ignoreEos" type="checkbox" name="visllama-model-ignoreEos" autocomplete="off"> Ignore EOS (--ignore-eos)</label>
+</div>
+</details>
+</div></details>

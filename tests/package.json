@@ -1,0 +1,10 @@
+{
+  "name": "visllama-regression-tests",
+  "version": "1.5.8",
+  "private": true,
+  "description": "Development-only DOM integration dependencies. Not used by VisLlama at runtime.",
+  "devDependencies": {
+    "jsdom": "30.1.1"
+  },
+  "license": "GPL-3.0-only"
+}

@@ -1,0 +1,16 @@
+/* Startup logo lighting and travel keyframes. Keep motion on the highlight
+   layers; JavaScript controls dismissal only, after the minimum splash duration. */
+/* Restore the original 0.1.18 splash motion, including its reduced-motion sweep. */
+.startup-splash{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:20px;background:#171c20;overflow:hidden;opacity:1;visibility:visible;transition:opacity .2s ease,visibility .2s ease}
+.startup-splash.dismissed{opacity:0;visibility:hidden;pointer-events:none}
+.startup-splash-panel{position:relative;width:min(470px,100%);display:flex;flex-direction:column;align-items:center;text-align:center}
+.startup-splash-emblem{position:relative;width:min(340px,65vw,42vh);aspect-ratio:988/791;display:grid;place-items:center}
+.startup-splash-emblem::before{content:"";position:absolute;inset:6% 1%;border-radius:50%;background:radial-gradient(ellipse,#d6b98166 0%,#4ee87314 42%,transparent 72%);filter:blur(24px);animation:splashGlow 2.6s ease-in-out infinite alternate}
+.startup-splash-emblem img{position:relative;display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 16px 38px #07031199)}
+.startup-splash-emblem::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 33%,#83ffad22 41%,#e8ffe1c9 47%,#ffffff 50%,#c4ffd999 54%,transparent 63%);background-size:300% 100%;-webkit-mask:url('/assets/img/visllama-logo-large.png') center / contain no-repeat;mask:url('/assets/img/visllama-logo-large.png') center / contain no-repeat;mix-blend-mode:screen;animation:splashSweep 1.7s linear infinite;filter:drop-shadow(0 0 12px #80ffb0)}
+.startup-splash-title{margin:14px 0 16px;font-size:clamp(16px,4vw,21px);font-weight:750;letter-spacing:.09em;color:#f4f0e7}
+.startup-splash-track{width:min(230px,60vw);height:3px;overflow:hidden;border-radius:10px;background:#465057}
+.startup-splash-track::after{content:"";display:block;height:100%;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left center;animation:splashProgress 3.6s ease-out forwards}
+@keyframes splashGlow{to{transform:scale(1.08);opacity:.63}}@keyframes splashSweep{from{background-position:100% 50%}to{background-position:0% 50%}}@keyframes splashProgress{to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){.startup-splash{transition:none}.startup-splash-emblem::before,.startup-splash-track::after{animation:none}.startup-splash-emblem::after{animation:splashSweep 3.6s linear 1 forwards}.startup-splash-track::after{transform:scaleX(1)}}
+.splash-atmosphere{position:absolute;inset:0;opacity:.85}.startup-splash-eyebrow{font:10px/1.7 var(--mono);letter-spacing:.18em;color:#c3b49a;margin-bottom:24px}.startup-splash-subtitle{font:12px/1.6 var(--mono);color:#c4cbd0;margin:0 0 24px}.startup-splash-version{font:10px/1.5 var(--mono);color:#a9b5be;margin-top:13px;letter-spacing:.08em}

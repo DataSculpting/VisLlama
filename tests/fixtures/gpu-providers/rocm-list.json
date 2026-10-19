@@ -1,0 +1,12 @@
+{
+  "card0": {
+    "Card Series": "Synthetic AMD",
+    "Unique ID": "0x1234",
+    "PCI Bus": "0000:0b:00.0"
+  },
+  "card1": {
+    "Card Series": "Synthetic AMD",
+    "Unique ID": "0x5678",
+    "PCI Bus": "0000:0c:00.0"
+  }
+}

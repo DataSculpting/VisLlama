@@ -1,0 +1,14 @@
+<!-- Decorative cloud/mist layers only; no controls or application state belong here. -->
+<svg xmlns="http://www.w3.org/2000/svg" class="atmosphere-defs" aria-hidden="true" width="0" height="0" focusable="false"><defs>
+<radialGradient id="cloud-warm"><stop stop-color="#c2ad8b" stop-opacity=".85"/><stop offset=".45" stop-color="#988264" stop-opacity=".65"/><stop offset=".76" stop-color="#706658" stop-opacity=".24"/><stop offset="1" stop-color="#706658" stop-opacity="0"/></radialGradient>
+<radialGradient id="cloud-cool"><stop stop-color="#b0c2cb" stop-opacity=".75"/><stop offset=".44" stop-color="#829da9" stop-opacity=".55"/><stop offset=".76" stop-color="#576c77" stop-opacity=".2"/><stop offset="1" stop-color="#576c77" stop-opacity="0"/></radialGradient>
+<filter id="cloud-billows" x="-25%" y="-50%" width="150%" height="200%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".006 .01" numOctaves="5" seed="14" result="cloudNoise"/><feColorMatrix in="cloudNoise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  3.5 0 0 0 -1.15" result="cloudDensity"/><feGaussianBlur in="cloudDensity" stdDeviation="1.5" result="softDensity"/><feComposite in="SourceGraphic" in2="softDensity" operator="in" result="shadedCloud"/><feDisplacementMap in="shadedCloud" in2="cloudNoise" scale="80" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="1.8"/></filter>
+<filter id="cloud-mist" x="-30%" y="-75%" width="160%" height="250%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="32"/></filter>
+<filter id="cloud-grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".76" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+<symbol id="ambient-cloud-field" viewBox="0 0 1600 1000">
+<g class="cloud-bank cloud-bank-warm" fill="url(#cloud-warm)" filter="url(#cloud-billows)"><ellipse cx="320" cy="265" rx="420" ry="165"/><ellipse cx="540" cy="235" rx="245" ry="190"/><ellipse cx="745" cy="325" rx="300" ry="175"/><ellipse cx="175" cy="375" rx="310" ry="190"/><ellipse cx="560" cy="395" rx="425" ry="115"/></g>
+<g class="cloud-bank cloud-bank-cool" fill="url(#cloud-cool)" filter="url(#cloud-billows)"><ellipse cx="1340" cy="555" rx="425" ry="200"/><ellipse cx="1080" cy="525" rx="270" ry="180"/><ellipse cx="850" cy="625" rx="305" ry="170"/><ellipse cx="1210" cy="695" rx="420" ry="130"/></g>
+<g class="cloud-bank cloud-bank-mist" filter="url(#cloud-mist)"><ellipse fill="url(#cloud-warm)" cx="650" cy="880" rx="760" ry="100"/><ellipse fill="url(#cloud-cool)" cx="880" cy="395" rx="660" ry="80"/></g>
+<rect class="atmosphere-grain" width="1600" height="1000" filter="url(#cloud-grain)"/>
+</symbol></defs></svg>
+<div class="ambient-scene" aria-hidden="true"><svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" focusable="false"><use href="#ambient-cloud-field"/></svg></div>

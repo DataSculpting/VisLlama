@@ -1,0 +1,12 @@
+<!-- Read-only summaries plus shared model actions; avoid a second lifecycle implementation. -->
+<div id="dashboardView" class="view active view-panel">
+<h1 class="page-title">Dashboard</h1><div class="page-sub">Everything important at a glance.</div>
+<div class="quick-actions"><button class="danger" id="dashStopCompute">Stop compute</button><button id="dashAddModel">Manage Models</button><button id="dashOpenLogs">Logs / Diagnostics</button></div>
+<div class="dashboard-grid">
+<div class="metric-card"><div class="metric-label">Serving mode</div><div class="metric-value" id="dashServerState">Stopped</div><div class="metric-note" id="dashServerNote">Router service is not running.</div></div>
+<div class="metric-card"><div class="metric-label">Public API</div><div class="metric-value" id="dashApi">Not active</div><div class="metric-note">OpenAI-compatible endpoint</div></div>
+<div class="metric-card"><div class="metric-label">Models</div><div class="metric-value" id="dashModelCount">0 configured</div><div class="metric-note" id="dashModelNote">No live status yet.</div></div>
+<div class="metric-card"><div class="metric-label">GPU VRAM</div><div class="metric-value" id="dashGpu">Waiting...</div><div class="metric-note" id="dashGpuNote">Telemetry updates every 2 seconds.</div></div>
+</div>
+<div class="dashboard-columns"><div class="card"><div class="row"><h2 style="margin-right:auto">Model status</h2><button id="dashRouter">Open Router</button><button id="dashManageModels">Manage Models</button></div><div id="dashModels" class="dash-models"><span class="muted">Start Router mode to see live model state.</span></div></div><div class="card"><div class="row"><h2 style="margin-right:auto">Recent activity</h2><button id="dashFullActivity">See full activity</button><button id="dashClearLog">Clear view</button></div><div id="dashLoading" class="hidden"></div><pre id="dashLog" class="log dash-log">No log yet.</pre></div></div>
+</div>

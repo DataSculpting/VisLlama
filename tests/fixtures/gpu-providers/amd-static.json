@@ -1,0 +1,16 @@
+[
+  {
+    "gpu": 0,
+    "asic": {
+      "market_name": "Synthetic AMD"
+    },
+    "limit": {
+      "ppt0": {
+        "socket_power_limit": {
+          "value": 250,
+          "unit": "W"
+        }
+      }
+    }
+  }
+]

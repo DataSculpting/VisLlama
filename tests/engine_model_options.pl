@@ -1,0 +1,33 @@
+# GPL-3.0-only. Shipped Strata model controls + synthetic installed help.
+use strict;use warnings;use Test::More;use FindBin qw($RealBin);use lib "$RealBin/../lib";use File::Temp qw(tempdir);use File::Path qw(make_path);use JSON::PP qw(encode_json);use Storable qw(dclone);
+use VisLlama::Engines ();use VisLlama::Engine::Definitions ();use VisLlama::Engine::Discovery ();use VisLlama::Context qw(%CFG $STATE);
+my $root=tempdir(CLEANUP=>1);make_path("$root/engines/strata","$root/install/serve","$root/tokenizer");
+sub put {open my $f,'>:raw',$_[0] or die $!;print {$f} $_[1];close $f;}
+my $raw=VisLlama::Engine::Registry::read_json("$RealBin/../engines/strata/engine.json");put("$root/engines/strata/engine.json",encode_json($raw));put("$root/install/serve/server.py",'# fixture');
+for(qw(python native model)){put("$root/$_",'fixture');chmod 0755,"$root/$_";}put("$root/tokenizer/$_",'{}') for qw(vocab.json merges.txt token_type.json);
+no warnings 'redefine';local *VisLlama::Paths::app_base_dir=sub {$root};local %CFG=(builds=>{});$STATE={};my $d=VisLlama::Engine::Registry::get('strata');
+my $b=VisLlama::Engines::save_build({engine=>'strata',definition_digest=>$d->{digest},name=>'Prepared',root=>"$root/install",executable=>"$root/python",runtime_executable=>"$root/native"});
+my $help=" -c, --max-context N  Context\n --layer-split K1[,K2..]|auto  Split\n --split-skip-if-fits  Skip split\n --batch N  Slots\n --kv TYPE  Format\n --kv-resident N  Window\n --rope-scaling MODE  RoPE\n --rope-scale FLOAT  Scale\n --vram-reserve-mib N  Reserve\n --vram-reserve-later-mib N  Later reserve\n --resident-experts  RAM\n --resident-budget-gib FLOAT  Budget\n --vram-elastic  Elastic\n";
+local *VisLlama::Command::capture=sub {$?=0;$VisLlama::Command::LAST_STDERR='';$_[1] eq "$root/native"?$help:" --engine VALUE  Engine\n --config FILE  Config\n --host VALUE  Host\n --port N  Port\n"};
+my $e=VisLlama::Engines::discover($b->{id});my %fields=map {$_->{key}=>$_} @{$e->{fields}};
+ok($fields{'max-context'}{available},'Short/long alias help verifies named context control');ok($fields{'layer-split'}{available},'Nontrivial split signature still verifies declared control');
+ok(!grep(/tensor.?parallel/i,map {$_->{label}} @{$raw->{fields}}),'No fabricated Strata tensor-parallel control');
+my $p={engine=>'strata',build=>$b->{id},alias=>'model',model=>"$root/model",config_mode=>'create',settings=>{'model-format'=>'native','tokenizer-directory'=>"$root/tokenizer",'gpu-selection'=>'0,2','layer-split'=>'18','parallel-requests'=>6,'max-context'=>32768,'kv-format'=>'int8','kv-resident'=>4096,'rope-scaling'=>'yarn','rope-scale'=>2,'vram-reserve'=>1024,'resident-experts'=>JSON::PP::true,'resident-budget'=>12,'vram-segment'=>128},native_config=>{parallel=>2,vram_elastic=>JSON::PP::true,args=>['--batch','2','--slots','4','--mmap-experts','--vram-segment-mib','64','--opaque','keep']}};
+my $plan=VisLlama::Engines::preview($p);my $c=$plan->{config};is($c->{gpu},'0,2','GPU selection stays native config data');is($c->{layer_split},'18','Split maps to native JSON');is($c->{parallel},6,'Request slots override raw config');
+my $args=$c->{args};my %values;for(my $i=0;$i<@$args;$i++){$values{$args->[$i]}=$args->[$i+1] if $args->[$i]=~/^--/;}
+is($values{'--max-context'},32768,'Context becomes native model argument');is($values{'--kv'},'int8','KV precision mapped');is($values{'--kv-resident'},4096,'Resident KV window mapped');is($values{'--vram-reserve-mib'},1024,'Native reserve mapped');is($values{'--resident-budget-gib'},12,'RAM budget mapped');
+ok(!grep($_ eq '--batch'||$_ eq '--slots'||$_ eq '--mmap-experts',@$args),'Explicit controls replace conflicting imported arguments');is($values{'--opaque'},'keep','Unrelated native arguments preserved');
+is($c->{vram_segment_mib},128,'Dependency reads imported parent config');ok(!grep($_ eq '--vram-segment-mib',@$args),'Segment override removes imported duplicate');
+for my $bad ('CUDA0','0,,2') {my $v=dclone($p);$v->{settings}{'gpu-selection'}=$bad;eval {VisLlama::Engines::preview($v)};like($@,qr/comma-separated whole numbers/,'Invalid native GPU-list input rejected');}
+my $legacy=dclone($p);delete $legacy->{settings}{'max-context'};$legacy->{settings}{'discovered-native-max-context'}=65536;$legacy->{capability_keys}=['discovered-native-max-context'];
+my $lp=VisLlama::Engines::preview($legacy);my $i=0;$i++ until $lp->{config}{args}[$i] eq '--max-context';is($lp->{config}{args}[$i+1],65536,'Earlier discovered setting maps to new named control without loss');
+VisLlama::Engines::validate_preset($legacy,1);pass('Earlier capability key remains loadable with current support evidence');
+$legacy->{settings}{'max-context'}=131072;$lp=VisLlama::Engines::preview($legacy);$i=0;$i++ until $lp->{config}{args}[$i] eq '--max-context';is($lp->{config}{args}[$i+1],131072,'Explicit new named value wins over saved legacy alias');
+my $import={%$p,config_mode=>'import',settings=>{},native_config=>{gpu=>[0,2],parallel=>2,args=>['--batch','4','--max-context','16384'],custom=>1}};
+is_deeply(VisLlama::Engines::preview($import)->{config}{args},$import->{native_config}{args},'Untouched import arguments remain unchanged');is_deeply(VisLlama::Engines::preview($import)->{config}{gpu},[0,2],'Imported GPU array retains its format');
+my $file=VisLlama::Engine::Discovery::path($b);my $record=VisLlama::Engine::Registry::read_json($file);my $older=dclone($record);$older->{definition_digest}='older';push @{$older->{fields}},{key=>'discovered-native-max-context',label=>'Old context',type=>'integer',binding=>'config-flag',path=>['args'],flag=>'--max-context',support=>{probe=>'native',flag=>'--max-context'}};put($file,encode_json($older));
+my $stale=VisLlama::Engines::capabilities($b);ok(!grep($_->{key} eq 'discovered-native-max-context',@{$stale->{fields}}),'Upgraded named control absorbs stale descriptor alias without duplicate UI fields');put($file,encode_json($record));
+# A local copied definition is preserved; missing new defaults are explicitly surfaced.
+my $local=VisLlama::Engine::Definitions::raw($d);$local->{fields}=[grep {$_->{key} ne 'max-context'} @{$local->{fields}}];$local->{name}='My edited definition';VisLlama::Engine::Definitions::save('strata',$local,$d->{digest});
+my $active=VisLlama::Engine::Registry::get('strata');is($active->{name},'My edited definition','User base edits retained');is($active->{default_controls_available},1,'New default controls detected for local definition');is(VisLlama::Engine::Definitions::bundled('strata')->{name},$raw->{name},'Original default available separately for reviewed merge');
+done_testing();

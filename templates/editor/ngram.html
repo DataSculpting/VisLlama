@@ -1,0 +1,26 @@
+<!-- Mode-specific groups retain IDs and values while syncNgramUi controls visibility. -->
+<h3>N-gram acceleration</h3>
+<div class="grid">
+<div class="field editor-setting"><label>N-gram type (--spec-type)</label><select id="ngramType" name="visllama-model-ngramType" autocomplete="off"><option value="none">None</option><option value="ngram-cache">N-gram cache</option><option value="ngram-simple">N-gram simple</option><option value="ngram-map-k">N-gram map-k</option><option value="ngram-map-k4v">N-gram map-k4v (experimental)</option><option value="ngram-mod">N-gram mod</option></select></div>
+</div>
+<div id="ngramHint" class="muted" style="margin-top:8px">N-gram speculation can be used by itself or together with the Draft / MTP type above. When both are enabled, VisLlama emits a comma-separated --spec-type value.</div>
+<div id="ngramModOptions" class="grid hidden" style="margin-top:10px">
+<div class="field editor-setting"><label>Lookup length (--spec-ngram-mod-n-match)</label><input id="ngramModMatch" type="number" min="1" placeholder="24" name="visllama-model-ngramModMatch" autocomplete="off"></div>
+<div class="field editor-setting"><label>Minimum N-gram tokens (--spec-ngram-mod-n-min)</label><input id="ngramModMin" type="number" min="1" placeholder="48" name="visllama-model-ngramModMin" autocomplete="off"></div>
+<div class="field editor-setting"><label>Maximum N-gram tokens (--spec-ngram-mod-n-max)</label><input id="ngramModMax" type="number" min="1" placeholder="64" name="visllama-model-ngramModMax" autocomplete="off"></div>
+</div>
+<div id="ngramSimpleOptions" class="grid hidden" style="margin-top:10px">
+<div class="field editor-setting"><label>Lookup N size (--spec-ngram-simple-size-n)</label><input id="ngramSimpleN" type="number" min="1" placeholder="12" name="visllama-model-ngramSimpleN" autocomplete="off"></div>
+<div class="field editor-setting"><label>Draft M size (--spec-ngram-simple-size-m)</label><input id="ngramSimpleM" type="number" min="1" placeholder="48" name="visllama-model-ngramSimpleM" autocomplete="off"></div>
+<div class="field editor-setting"><label>Minimum hits (--spec-ngram-simple-min-hits)</label><input id="ngramSimpleHits" type="number" min="1" placeholder="1" name="visllama-model-ngramSimpleHits" autocomplete="off"></div>
+</div>
+<div id="ngramMapKOptions" class="grid hidden" style="margin-top:10px">
+<div class="field editor-setting"><label>Lookup N size (--spec-ngram-map-k-size-n)</label><input id="ngramMapKN" type="number" min="1" placeholder="12" name="visllama-model-ngramMapKN" autocomplete="off"></div>
+<div class="field editor-setting"><label>Draft M size (--spec-ngram-map-k-size-m)</label><input id="ngramMapKM" type="number" min="1" placeholder="48" name="visllama-model-ngramMapKM" autocomplete="off"></div>
+<div class="field editor-setting"><label>Minimum hits (--spec-ngram-map-k-min-hits)</label><input id="ngramMapKHits" type="number" min="1" placeholder="1" name="visllama-model-ngramMapKHits" autocomplete="off"></div>
+</div>
+<div id="ngramMapK4vOptions" class="grid hidden" style="margin-top:10px">
+<div class="field editor-setting"><label>Lookup N size (--spec-ngram-map-k4v-size-n)</label><input id="ngramMapK4vN" type="number" min="1" placeholder="12" name="visllama-model-ngramMapK4vN" autocomplete="off"></div>
+<div class="field editor-setting"><label>Draft M size (--spec-ngram-map-k4v-size-m)</label><input id="ngramMapK4vM" type="number" min="1" placeholder="48" name="visllama-model-ngramMapK4vM" autocomplete="off"></div>
+<div class="field editor-setting"><label>Minimum hits (--spec-ngram-map-k4v-min-hits)</label><input id="ngramMapK4vHits" type="number" min="1" placeholder="1" name="visllama-model-ngramMapK4vHits" autocomplete="off"></div>
+</div>

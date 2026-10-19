@@ -1,0 +1,37 @@
+# Host state and generated runtime files
+/presets/
+/logs/
+# Development dependencies and test outputs
+/tests/node_modules/
+/tests/evidence/
+/tests/.http-test-*/
+/tests/.poll-probe-*/
+/tests/.chat-transport-*/
+/tests/.phase3-http-*/
+/node_modules/
+# Local release archives, models and native build products
+*.zip
+*.tar.gz
+*.gguf
+*.dll
+*.exe
+*.so
+*.so.*
+*.o
+*.obj
+
+# Local environment, editor and OS files
+/.env
+/.env.local
+/.venv/
+/venv/
+/.vscode/
+/.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+# Fallback temporary privacy-test installation
+/visllama-privacy-*/

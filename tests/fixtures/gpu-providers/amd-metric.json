@@ -1,0 +1,44 @@
+[
+  {
+    "gpu": 0,
+    "mem_usage": {
+      "used_vram": {
+        "value": 2048,
+        "unit": "MB"
+      },
+      "total_vram": {
+        "value": 16384,
+        "unit": "MB"
+      }
+    },
+    "usage": {
+      "gfx_activity": {
+        "value": 0,
+        "unit": "%"
+      }
+    },
+    "temperature": {
+      "edge": {
+        "value": 45,
+        "unit": "C"
+      },
+      "hotspot": {
+        "value": 60,
+        "unit": "C"
+      }
+    },
+    "fan": {
+      "usage": {
+        "value": 0,
+        "unit": "%"
+      },
+      "rpm": 1000
+    },
+    "power": {
+      "socket_power": {
+        "value": 72,
+        "unit": "W"
+      }
+    }
+  }
+]

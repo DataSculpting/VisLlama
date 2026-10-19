@@ -1,0 +1,27 @@
+// GPL-3.0-only. Real forms and rendering with synthetic builds; no browser/hardware claim.
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const {JSDOM}=require('jsdom'),ui=require('./support/ui.cjs');
+const dom=new JSDOM(ui.html(),{runScripts:'outside-only',url:'http://visllama.test/'}),w=dom.window,d=w.document,ctx=dom.getInternalVMContext();
+for(const f of ['state','core','models','router','builds','arguments','editor','engines','engine-libraries','engine-import','model-editor'])vm.runInContext(fs.readFileSync(path.join(ui.root,'public/assets/js',f+'.js'),'utf8'),ctx);
+const definition={id:'example',name:'Example <engine>',definition_version:'1.0.0',digest:'abc',description:'One definition, many paths',driver:'native-json',fields:[{key:'context',label:'Context',type:'integer',minimum:1},{key:'enabled',label:'Enabled',type:'boolean'}]};
+const builds=[{id:'a',name:'Stable',engine:'example',root:'/stable',executable:'/stable/bin'},{id:'b',name:'Experimental',engine:'example',root:'/experimental',executable:'/experimental/bin'}];
+const requests=[];w.post=async(route,data)=>{requests.push({route,data});return {definitions:[definition],builds,errors:[],plan:{args:['literal $(text)']},presets:[]}};
+w.openModal=id=>d.getElementById(id).classList.remove('hidden');w.closeModal=id=>d.getElementById(id).classList.add('hidden');w.toast=()=>{};w.updateSetup=()=>{};w.renderRouterPresets=()=>{};w.renderModelLibrary=()=>{};
+w.openEditor=()=>elShim('singlePane').classList.add('editor-open');w.closeEditor=()=>elShim('singlePane').classList.remove('editor-open');w.refreshRouterModels=()=>{};w.updateCommand=()=>{};function elShim(id){return d.getElementById(id)}
+vm.runInContext('CFG={builds:[]};ROUTER_PRESETS=[]',ctx);
+(async()=>{try{
+ await w.engineRefresh();w.renderBuildManager();assert.match(d.getElementById('engineBuildSummary').textContent,/Stable/,'Registered engines visible in main manager');assert.match(d.getElementById('engineBuildSummary').textContent,/Experimental/);assert.equal(d.getElementById('buildCount').textContent,'2 configured');await d.querySelector('[data-open-engine="a"]').onclick();assert.equal(d.getElementById('engineRoot').value,'/stable','Main manager opens selected engine');
+ await w.engineOpenBuilds();assert.equal(d.getElementById('engineType').options.length,1,'One definition for two builds');assert.equal(d.querySelectorAll('[data-engine-edit]').length,2);assert.equal(d.querySelector('#engineType engine'),null,'Labels escaped');
+ const p={alias:'one',build:'a',engine:'example',model:'/model',settings:{context:8192,enabled:false,retired:'keep'},native_config:{custom:'retained'}};
+ await w.engineEditModel(p);assert.equal(d.getElementById('engineModelBuild').options.length,2);assert.equal(d.querySelector('[data-engine-field="enabled"]').type,'checkbox');assert.equal(d.querySelector('[data-engine-field="enabled"]').checked,false,'Explicit false preserved');assert.equal(w.engineModelPayload().settings.enabled,false);
+ d.getElementById('engineModelBuild').value='b';d.getElementById('engineModelBuild').onchange();assert.equal(w.engineModelPayload().settings.retired,'keep','Inactive settings survive build switching');assert.equal(w.engineModelPayload().settings.context,8192);
+ await w.enginePreview();assert.match(d.getElementById('engineLaunchPreview').textContent,/literal/);assert.equal(requests.at(-1).route,'/api/engine-preview');assert.equal(requests.at(-1).data.build,'b','User selects build independently of engine');
+ for(const invalid of ['', 'bad alias', 'bad/alias']){d.getElementById('alias').value=invalid;const count=requests.length;await w.engineSaveModel();assert.equal(requests.length,count,'Invalid alias blocked before request');assert.match(d.getElementById('aliasError').textContent,/Enter (?:an API|a) model alias/);assert.equal(d.activeElement.id,'alias');}d.getElementById('alias').value='valid._:-123';w.validateAlias();assert.equal(d.getElementById('aliasError').textContent,'');
+ await w.engineSaveModel();assert.equal(requests.at(-1).route,'/api/engine-preset-save');assert.equal(requests.at(-1).data.native_config.custom,'retained');
+ await w.engineOpenBuilds();assert.equal(d.getElementById('engineTrust'),null,'Registration has no permission checkbox');assert.match(d.getElementById('engineExecutionNotice').textContent,/same permissions as VisLlama/);assert.equal(d.getElementById('engineSaveBuild').getAttribute('aria-describedby'),'engineExecutionNotice');
+ d.getElementById('engineType').value='';let before=requests.length;await w.engineSaveBuild();assert.equal(requests.length,before,'Engine type still required');
+ d.getElementById('engineType').value='example';d.getElementById('engineBuildName').value='Third build';d.getElementById('engineRoot').value='/third';d.getElementById('engineExecutable').value='/third/bin';await w.engineSaveBuild();assert.equal(requests.filter(x=>x.route==='/api/engine-build-save').at(-1).data.name,'Third build','Registration succeeds without checkbox');
+ w.engineBuildForm(builds[0]);assert.equal(d.getElementById('engineType').disabled,true,'Existing build family immutable');
+ assert.equal(requests.filter(x=>x.route==='/api/engine-probe').length,0,'Opening, preview and save never probe');
+ console.log('Engine forms passed: reusable definitions, explicit family/build selection, typed values, inactive preservation, execution notice and passive saves');
+}finally{w.close()}})().catch(e=>{console.error(e);process.exitCode=1});
