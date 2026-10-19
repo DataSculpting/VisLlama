@@ -8,6 +8,17 @@ VisLlama manages named builds, model presets, GPU settings and loaded processes
 behind one public OpenAI-compatible Router endpoint. Integrated Chat provides
 streaming, local history, Markdown/code/math rendering and response statistics.
 
+## Screenshots
+
+![VisLlama Dashboard with llama.cpp and Strata models loaded, Router status and GPU memory usage](docs/screenshots/01-dashboard.jpg)
+
+Manage models from multiple engines behind one public endpoint, with load status,
+hardware readings and recent activity in one place.
+
+[View the full screenshot tour](docs/SCREENSHOTS.md) ·
+[Chat](docs/SCREENSHOTS.md#chat) ·
+[GPU priority settings](docs/SCREENSHOTS.md#calculated-gpu-priority)
+
 ## Getting started
 
 1. Install Perl: [Strawberry Perl](https://strawberryperl.com/) on Windows, or the
@@ -44,6 +55,7 @@ by VisLlama at runtime. External engines and monitoring tools have their own dep
 | Guide | Contents |
 | --- | --- |
 | [Installation](docs/INSTALLATION.md) | Windows/Linux prerequisites, setup, Docker and upgrades |
+| [Screenshot tour](docs/SCREENSHOTS.md) | Dashboard, Chat, model controls, statistics and settings |
 | [Usage](docs/USAGE.md) | Catalog, saving/loading, GPU settings, Chat and logs |
 | [Engine extensions](docs/ENGINES.md) | Engine setup, definition schema and discovery contracts |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Diagnostics, GPU loading and known limitations |
