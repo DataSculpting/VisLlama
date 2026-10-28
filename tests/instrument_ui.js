@@ -101,6 +101,11 @@ async function main(){try{
  assert.equal($('alias').getAttribute('aria-invalid'),'true');
  assert.equal(requests.some(r=>r.url==='/api/router-preset-save'),false,'Invalid alias rejected before backend');
  assert.equal($('editorView').classList.contains('active'),true);
+ assert.equal($('validationModal').classList.contains('hidden'),false,'Invalid save explains the problem in a modal');
+ assert.match($('validationDescription').textContent,/Spaces and slashes/);
+ d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+ assert.equal($('validationModal').classList.contains('hidden'),true);
+ assert.equal(d.activeElement,$('alias'),'Dismissal returns to invalid alias');
  $('editorClose').click();await flush();
  for(const name of ['dashboard','router','models','modelStats','logs','settings','stats']){
   w.showView(name);await flush();

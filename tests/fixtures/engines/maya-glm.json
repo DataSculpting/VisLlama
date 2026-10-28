@@ -1,0 +1,60 @@
+{
+  "exe": "C:/Maya/build/maya.exe",
+  "args": [
+    "--glm-pack",
+    "D:/Maya-data/models/Maya-S/pack",
+    "--max-context",
+    "32768",
+    "--expert-cache",
+    "auto",
+    "--prefill",
+    "auto",
+    "--kv-streaming",
+    "on",
+    "--expert-profile",
+    "C:/Maya/data/glm-expert-profile.bin",
+    "--kv-resident",
+    "8192",
+    "--parallel",
+    "2",
+    "--opaque-future",
+    "retained"
+  ],
+  "cwd": "C:/Maya",
+  "tokenizer": "D:/Maya-data/models/Maya-S/pack/tokenizer",
+  "model_name": "glm-5.3-flash",
+  "gpu": [
+    0,
+    2
+  ],
+  "layer_split": "24",
+  "lib_dirs": [
+    "C:/Maya/.venv/Lib/site-packages/nvidia/cublas/bin"
+  ],
+  "env": {
+    "MAYA_GLM_RAM_HEADROOM_GB": "16",
+    "MAYA_GLM_CPU_LANE": "12",
+    "MAYA_GLM_PCIE_SHARE": "0.4",
+    "MAYA_GLM_USAGE": "D:/Maya-data/usage-a.txt",
+    "MAYA_GLM_SLOT_DIR": "D:/Maya-data/slots-a",
+    "FUTURE_SETTING": "keep"
+  },
+  "sampling": {
+    "temperature": 1,
+    "top_p": 0.95
+  },
+  "reasoning_effort": "high",
+  "log": "C:/Maya/native.log",
+  "port": 8080,
+  "installer": {
+    "quant": "Maya-S"
+  },
+  "vision": {
+    "exe": "C:/Maya/build-vision/bin/maya-vision.exe",
+    "args": [
+      "--mmproj",
+      "D:/Maya-data/vision/mmproj.gguf"
+    ]
+  },
+  "api_key": "source-private-key"
+}

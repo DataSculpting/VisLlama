@@ -16,7 +16,7 @@ function engineRenderBuilds(){
  $('engineBuildRows').querySelectorAll('[data-engine-delete]').forEach(x=>x.onclick=async()=>{if(!confirm('Remove this build registration? Installation files stay unchanged.'))return;try{await post('/api/engine-build-delete',{id:x.dataset.engineDelete});await engineRefresh();engineRenderBuilds();updateSetup()}catch(e){toast(e.message,true)}});
 }
 function engineClearBuildErrors(){if($('engineBuildErrors'))$('engineBuildErrors').textContent='';for(const id of ['engineBuildName','engineRoot','engineExecutable','engineRuntimeExecutable','engineRuntimeLibraries']){$(id)?.removeAttribute('aria-invalid');if($(id+'Error'))$(id+'Error').textContent='';}}
-function engineBuildFieldError(id,message){if($(id+'Error'))$(id+'Error').textContent=message;$(id).setAttribute('aria-invalid','true');if(id==='engineRuntimeLibraries')$('engineBuildLibraryList')?.querySelector('button')?.focus();else $(id).focus();if($('engineBuildErrors'))$('engineBuildErrors').textContent=message;return false;}
+function engineBuildFieldError(id,message){if($(id+'Error'))$(id+'Error').textContent=message;$(id).setAttribute('aria-invalid','true');if(id==='engineRuntimeLibraries')$('engineBuildLibraryList')?.querySelector('button')?.focus();else $(id).focus();if($('engineBuildErrors'))$('engineBuildErrors').textContent=message;return validationBlocked(message);}
 async function engineSaveBuild(){engineClearBuildErrors();for(const [id,label] of [['engineBuildName','a build name'],['engineRoot','the installation directory'],['engineExecutable','the executable or interpreter']])if(!$(id).value.trim())return engineBuildFieldError(id,'Enter '+label+'.');
  let directories;try{directories=JSON.parse($('engineRuntimeLibraries').value||'[]');if(!Array.isArray(directories)||directories.some(x=>typeof x!=='string'))throw Error();}catch(e){return engineBuildFieldError('engineRuntimeLibraries','Review the library folder list and remove invalid entries.');}
  try{
@@ -73,7 +73,14 @@ async function enginePrepareModel(p=null,clone=false,initialize=false){engineRes
 }catch(e){toast(e.message,true)}}
 function engineModelPayload(){return {capability_keys:ENGINE_CAPABILITY_KEYS,config_mode:$('engineConfigMode').value,alias:$('engineModelAlias').value.trim(),original_alias:ENGINE_EDIT_MODEL||'',build:$('engineModelBuild').value,model:$('engineModelPath').value.trim(),settings:engineReadFields(),native_config:JSON.parse($('engineNativeConfig').value)}}
 async function engineSaveModel(){return saveEditorPreset(false)}
-async function enginePreview(){if(typeof modelEditorSyncIdentity==='function')modelEditorSyncIdentity();if(!(typeof modelEditorExternal==='function'&&modelEditorExternal()?!validateAlias():engineValidateAlias())||!engineValidateFields())return;try{const j=await post('/api/engine-preview',engineModelPayload());$('engineLaunchPreview').textContent=JSON.stringify(j.plan,null,2)}catch(e){toast(e.message,true)}}
+async function enginePreview(){
+ if(typeof modelEditorSyncIdentity==='function')modelEditorSyncIdentity();
+ const shared=typeof modelEditorExternal==='function'&&modelEditorExternal();
+ const aliasProblem=shared?validateAlias():engineValidateAlias()?'':ENGINE_ALIAS_MESSAGE;
+ if(aliasProblem)return validationBlocked(aliasProblem,shared?'alias':'engineModelAlias');
+ if(!engineValidateFields())return validationBlocked($('engineModelErrors').textContent||'Review the highlighted engine settings.');
+ try{const j=await post('/api/engine-preview',engineModelPayload());$('engineLaunchPreview').textContent=JSON.stringify(j.plan,null,2)}catch(e){toast(e.message,true)}
+}
 $('engineBuildManager').onclick=engineOpenBuilds;$('engineType').onchange=engineTypeChanged;$('engineClearBuild').onclick=engineClearBuild;$('engineSaveBuild').onclick=engineSaveBuild;
 $('engineModelBuild').onchange=async()=>{engineReadFields();ENGINE_EFFECTIVE=null;await engineLoadCapabilities(false);engineRenderFields()};$('engineModelSave').onclick=engineSaveModel;$('engineModelPreview').onclick=enginePreview;
 

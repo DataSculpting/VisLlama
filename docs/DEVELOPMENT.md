@@ -48,9 +48,9 @@ for f in public/assets/js/*.js public/assets/js/chat/*.js public/assets/js/chat/
 for f in tests/*.js; do node "$f"; done
 ```
 
-Version 1.5.12 contains 37 Perl regression scripts, 41 JavaScript regression
+Version 1.5.18 contains 39 Perl regression scripts, 45 JavaScript regression
 scripts, 30 browser JavaScript syntax checks and two entry syntax checks:
-110 commands before environment-dependent skips. Record each skip and failure.
+116 commands before environment-dependent skips. Record each skip and failure.
 
 `linux_router.pl` requires real procfs and owned-process support.
 `linux_platform.pl` includes a native-process subtest requiring readable `/proc`.
@@ -110,3 +110,10 @@ Keep third-party versions, license files and `third-party/chat-assets.sha256`
 consistent when updating bundled renderers. Run the affected checks and complete
 suite for implementation changes; report hardware/browser limits separately.
 See [Contributing](../CONTRIBUTING.md) for bug reports and change descriptions.
+
+Maya fixtures: `perl tests/engine_maya.pl` and `node tests/engine_maya_ui.js`.
+They exercise the shipped definition with synthetic processes, not GPU hardware.
+
+The integrated presentation layer is documented in [UI design](UI_DESIGN.md).
+`node tests/visual_refresh.js` exercises real templates/styles and mounted controls
+with synthetic data; it does not validate browser pixel layout.

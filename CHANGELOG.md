@@ -4,6 +4,52 @@ User-visible changes in the 1.5.x source releases. Current setup and behavior
 are documented in [Installation](docs/INSTALLATION.md), [Usage](docs/USAGE.md)
 and [Engine extensions](docs/ENGINES.md).
 
+## 1.5.18
+
+- Keep Dashboard load/unload labels on one line and normalize GPU list spacing for display only; protect other controls from mid-word wrapping.
+- Add Manage engines/builds beside the model engine selector and Add new engine/build as its last option. Both open the existing unified build manager without discarding the model draft.
+- Align GPU metric charts independently of wrapped labels and values, with a fallback for browsers without CSS subgrid.
+- Show registered external build aliases in Model Stats filters and history while retaining original configuration IDs and saved log formats.
+- Replace the misleading Open llama-server UI action with navigation to VisLlama's Router / Serving page, available even while stopped.
+
+## 1.5.17
+
+- Integrate the approved graphite/amber/green visual refresh with compact chrome, flatter sections and consistent field/control styling.
+- Tighten operational tables, hardware cards, dialogs, diagnostics and scoped Chat presentation.
+- Put native JSON import above shared model identity and keep component Browse actions beside their inputs.
+- Add a Dashboard per-device memory panel and host RAM summary using existing telemetry; unavailable values remain explicit.
+- Show engine family and saved GPU selection beside Dashboard model state, retaining the existing load/unload dispatch.
+- Preserve the splash composition/animation, backend, engine definitions, GPU planning and saved/live/loaded-state behavior.
+
+## 1.5.16
+
+- Pass Maya's empty worker API-key value as `--api-key=` so legacy Windows PowerShell cannot drop it.
+- Preserve empty native arguments in the external-engine Windows launcher, including retained local engine definitions.
+- Keep earlier Maya build registrations compatible and preserve local definitions and model presets.
+- Add regressions for the current default, retained earlier definition, private launcher arguments and upgrade compatibility.
+
+## 1.5.15
+
+- Preserve absolute Windows drive roots when starting component file/folder browsing and normalize bare drive letters in the folder API.
+- Keep external-engine Windows stderr capture running and record the native exit status separately.
+- Clarify that advanced JSON edits the preset's base configuration, refreshes matching controls and leaves the source file unchanged.
+- Document runtime Maya GPU selection, inherited split/environment conflicts and the private log files needed to diagnose startup failures.
+
+## 1.5.14
+
+- Explain validation-blocked preset Save, Save and load/reload, engine Preview and build registration in a modal.
+- Retain inline field errors and return focus to the offending setting after dismissal.
+- Keep typing-time validation inline and preserve drafts; blocked actions make no save or load requests.
+
+## 1.5.13
+
+- Add a declarative Maya GLM engine definition; no core dispatch or frontend changes.
+- Import prepared Maya JSON into the shared model editor, or create presets from prepared packs.
+- Expose native context/cache, GPU split, request slots, RAM/CPU tuning and writable-data settings.
+- Preserve unknown native configuration and model sampling while owning worker host, port, alias and log.
+- Keep Maya setup/rebuild/calibration external, native placement unverified and concurrency opt-in.
+- Add Maya setup documentation and backend/full-page UI regressions. Hardware acceptance remains outstanding.
+
 ## 1.5.12
 
 - Use current model library folders and field overrides during native option discovery.

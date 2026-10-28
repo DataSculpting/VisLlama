@@ -14,9 +14,12 @@ function renderDashModels(){
   const action=['loaded','loading','sleeping'].includes(state)||(engine?.managed&&engine.running)?'unload':'load';
   const reason=action==='unload'?unloadReason:loadReason,disabled=!!reason;
   const label=pending?(pending==='unload'?'Unloading...':'Loading...'):action==='unload'?'Unload':'Load';
-  return `<tr><td><b>${esc(p.alias)}</b><div class="muted">${esc(p.build||'')}</div></td><td><span class="badge ${esc(state)}">${esc(state)}</span></td><td><button data-dash-model="${esc(p.alias)}" data-dash-action="${action}" ${disabled?'disabled':''} title="${esc(reason)}">${label}</button></td></tr>`
+  const family=p.engine&&p.engine!=='llamacpp'?p.engine:'llama.cpp';
+  const selection=p.engine&&p.engine!=='llamacpp'?(p.settings?.['gpu-selection']??p.native_config?.gpu):p.ui?.devices;
+  const devices=Array.isArray(selection)?(selection.length?selection.join(','):'Engine default'):selection===undefined||selection===null||selection===''?'Engine default':String(selection).replace(/\s*,\s*/g,',');
+  return `<tr><td><b>${esc(p.alias)}</b><div class="muted">${esc(p.build||'')}</div></td><td>${esc(family)}</td><td class="dash-gpus">${esc(devices)}</td><td><span class="badge ${esc(state)}">${esc(state)}</span></td><td><button data-dash-model="${esc(p.alias)}" data-dash-action="${action}" ${disabled?'disabled':''} title="${esc(reason)}">${label}</button></td></tr>`
  }).join('');
- const markup=rows?`<table class="router-table"><tbody>${rows}</tbody></table>`:'<div class="empty-state">No configured models yet.</div>';
+ const markup=rows?`<table class="router-table"><thead><tr><th>Model / build</th><th>Engine</th><th>Saved GPU selection</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty-state">No configured models yet.</div>';
  if(markup!==DASH_MODELS_MARKUP){root.innerHTML=markup;DASH_MODELS_MARKUP=markup}
 }
 
@@ -32,4 +35,18 @@ function renderHardwareStrip(j){
  const used=g.reduce((n,x)=>n+(Number(x.memory_used_mib)||0),0),total=g.reduce((n,x)=>n+(Number(x.memory_total_mib)||0),0);
  $('dashGpu').textContent=extra.length?`${g.length} GPU${g.length===1?'':'s'}`:total?`${(used/1024).toFixed(1)} / ${(total/1024).toFixed(1)} GiB`:'Unavailable';
  $('dashGpuNote').textContent=extra.length?'Per-device memory shown below; memory pools are not combined.':total?`${g.length} NVIDIA GPU${g.length===1?'':'s'} / host-wide usage`:'No GPU telemetry available.';
+ renderDashHardware(j);
+}
+
+// Present the existing sample without changing placement or combining pools.
+function renderDashHardware(j){
+ const root=$('dashHardwareDevices');if(!root)return;
+ const valid=n=>typeof n==='number'&&Number.isFinite(n),g=[...(j?.nvidia?.gpus||[]),...(j?.amd?.gpus||[]),...(j?.intel?.gpus||[])];
+ root.innerHTML=g.map(x=>{
+  const memory=valid(x.memory_used_mib)&&valid(x.memory_total_mib)&&x.memory_total_mib>0;
+  const pct=memory?Math.max(0,Math.min(100,x.memory_used_mib/x.memory_total_mib*100)):null;
+  return `<div class="dashboard-device"><div class="dashboard-device-head"><span class="dashboard-device-name">${esc(x.vendor&&x.vendor!=='NVIDIA'?x.vendor+' ':'')}GPU ${esc(x.index??'?')} · ${esc(x.name||'Name unavailable')}</span><span class="dashboard-device-value">${memory?`${(x.memory_used_mib/1024).toFixed(1)} / ${(x.memory_total_mib/1024).toFixed(1)} GiB`:'Unavailable'}</span></div>${memory?`<div class="hardware-meter" role="meter" aria-label="${esc('GPU '+(x.index??'?')+' memory usage')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><span style="width:${pct.toFixed(1)}%"></span></div>`:''}<div class="dashboard-device-meta"><span>${valid(x.utilization_percent)?Math.round(x.utilization_percent)+'% utilization':'Utilization unavailable'}</span><span>${valid(x.temperature_c)?Math.round(x.temperature_c)+'°C':'Temperature unavailable'}</span></div></div>`;
+ }).join('')||'<span class="muted">GPU telemetry unavailable.</span>';
+ const s=j?.system||{},ram=valid(s.memory_used_mib)&&valid(s.memory_total_mib)&&s.memory_total_mib>0;
+ $('dashHostMemory').textContent=ram?`Host RAM: ${(s.memory_used_mib/1024).toFixed(1)} / ${(s.memory_total_mib/1024).toFixed(1)} GiB`:'Host RAM unavailable.';
 }

@@ -1,0 +1,670 @@
+{
+  "schema_version": "1.1",
+  "definition_version": "1.0.1",
+  "id": "maya",
+  "name": "Maya — GLM prepared server",
+  "description": "Run prepared Project Maya GLM-5.3-Flash packs. Import Maya JSON at the top of the model editor, then edit named controls or create a preset from prepared assets. Linux CUDA and experimental Windows/HIP; engine-native GPU selection, no verified VisLlama placement. Setup, compilation and calibration remain external.",
+  "platforms": [
+    "windows",
+    "linux"
+  ],
+  "driver": "native-json",
+  "concurrency": "unverified",
+  "argv": [
+    "${executable}",
+    "${root}/serve/server.py",
+    "--engine",
+    "strata",
+    "--config",
+    "${runtime_config}",
+    "--host",
+    "${host}",
+    "--port",
+    "${port}",
+    "--api-key="
+  ],
+  "probe": {
+    "argv": [
+      "${executable}",
+      "${root}/serve/server.py",
+      "--help"
+    ],
+    "timeout": 10,
+    "required_flags": [
+      "--engine",
+      "--config",
+      "--host",
+      "--port",
+      "--api-key"
+    ]
+  },
+  "fields": [
+    {
+      "key": "model-format",
+      "label": "Prepared model format",
+      "description": "GLM pack prepared by Maya setup. The catalog path identifies this pack directory; this does not prepare GGUF files or create a pack. DeepSeek uses a separate contract and is not supported by this definition.",
+      "type": "string",
+      "binding": "none",
+      "enum": [
+        "glm-pack"
+      ],
+      "initial": "glm-pack",
+      "group": "Model paths"
+    },
+    {
+      "key": "tokenizer-directory",
+      "label": "Tokenizer directory",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "tokenizer"
+      ],
+      "file_kind": "directory",
+      "required": true,
+      "description": "Prepared tokenizer directory containing vocab.json, merges.txt and token_type.json.",
+      "group": "Model paths",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence)."
+    },
+    {
+      "key": "expert-cache",
+      "label": "Expert cache size",
+      "type": "string",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--expert-cache",
+      "group": "Expert cache and prefill",
+      "description": "Engine-native cache value, such as auto or a slot count. No value is forced by VisLlama.",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence)."
+    },
+    {
+      "key": "prefill",
+      "label": "Prefill chunk setting",
+      "type": "string",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--prefill",
+      "group": "Expert cache and prefill",
+      "description": "Engine-native value, such as auto, a token count, or auto:N when supported.",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence)."
+    },
+    {
+      "key": "max-context",
+      "label": "Context size (tokens)",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--max-context",
+      "group": "Context and cache",
+      "description": "Full model context limit, not the resident KV window.",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence).",
+      "support": {
+        "probe": "native",
+        "flag": "--max-context",
+        "advisory": true
+      },
+      "minimum": 1
+    },
+    {
+      "key": "kv-resident",
+      "label": "Resident KV window (tokens)",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--kv-resident",
+      "group": "Context and cache",
+      "description": "Size of the KV window kept resident. This is not the full context size.",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence).",
+      "support": {
+        "probe": "native",
+        "flag": "--kv-resident",
+        "advisory": true
+      },
+      "minimum": 0
+    },
+    {
+      "key": "gpu-selection",
+      "label": "GPU selection (Maya device numbers)",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "gpu"
+      ],
+      "group": "GPU sharing",
+      "description": "Comma-separated Maya device numbers, e.g. 0,2. Maya interprets these using its CUDA/HIP ordering. VisLlama does not translate them or verify physical placement. Select free GPUs when sharing with other models.",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence).",
+      "format": "integer-csv"
+    },
+    {
+      "key": "layer-split",
+      "label": "Layer / pipeline split points",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "layer_split"
+      ],
+      "group": "GPU sharing",
+      "description": "auto, or the first layer on each later GPU, e.g. 18 or 16,32. These are boundaries, not layer counts. Requires several selected GPUs. Maya verifies compatibility.",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence).",
+      "format": "auto-or-integer-csv",
+      "support": {
+        "probe": "native",
+        "flag": "--layer-split",
+        "advisory": true
+      },
+      "clear_flags": [
+        {
+          "flag": "--layer-split",
+          "takes_value": true
+        }
+      ]
+    },
+    {
+      "key": "vram-reserve",
+      "label": "VRAM reserve (MiB)",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--vram-reserve-mib",
+      "group": "Memory",
+      "description": "Native engine reserve for other programs. Does not enable VisLlama Calculated planning.",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence).",
+      "support": {
+        "probe": "native",
+        "flag": "--vram-reserve-mib",
+        "advisory": true
+      },
+      "minimum": 0
+    },
+    {
+      "key": "vram-reserve-later",
+      "label": "Later GPUs VRAM reserve (MiB)",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "flag": "--vram-reserve-later-mib",
+      "group": "Memory",
+      "description": "Separate native reserve for later layer-split GPUs.",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence).",
+      "support": {
+        "probe": "native",
+        "flag": "--vram-reserve-later-mib",
+        "advisory": true
+      },
+      "minimum": 0
+    },
+    {
+      "key": "native-executable",
+      "label": "Maya inference executable",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "exe"
+      ],
+      "file_kind": "file",
+      "description": "Prepared GLM inference binary: build/maya.exe on Windows, build/maya on Linux, or build-hip/maya for HIP. Separate from the server Python interpreter. Do not select maya-ds4.",
+      "required": true,
+      "group": "Runtime installation",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence)."
+    },
+    {
+      "key": "working-directory",
+      "label": "Working directory",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "cwd"
+      ],
+      "file_kind": "directory",
+      "description": "Blank uses the registered installation directory in Create mode.",
+      "group": "Runtime installation",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence)."
+    },
+    {
+      "key": "native-library-directories",
+      "label": "Native library folders",
+      "type": "json-array",
+      "binding": "config",
+      "path": [
+        "lib_dirs"
+      ],
+      "description": "Folders used to find DLLs/shared libraries. Imported folders are kept. Add, browse or detect folders without editing JSON.",
+      "group": "Runtime installation",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence)."
+    },
+    {
+      "key": "reasoning-effort",
+      "label": "Default reasoning effort",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "reasoning_effort"
+      ],
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence).",
+      "group": "Output defaults"
+    },
+    {
+      "key": "fit-max-tokens",
+      "label": "Fit output tokens to context",
+      "type": "boolean",
+      "binding": "config",
+      "path": [
+        "fit_max_tokens"
+      ],
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence).",
+      "group": "Output defaults"
+    },
+    {
+      "key": "native-arguments",
+      "label": "Full native argument array (advanced)",
+      "type": "json-array",
+      "binding": "config",
+      "path": [
+        "args"
+      ],
+      "description": "Preserved native argument tokens. Named controls below display matching values; editing one replaces only its corresponding option. Unknown tokens stay unchanged.",
+      "group": "Advanced arguments",
+      "source": "Project Maya prepared server / maya.py write_config / docs/SETTINGS.md (reviewed source hashes in definition evidence)."
+    },
+    {
+      "key": "glm-pack",
+      "label": "Prepared GLM pack directory",
+      "type": "string",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "group": "Model paths",
+      "description": "Pack created by Maya setup, with its model index and tokenizer. Import the generated Maya JSON to fill this and the remaining paths.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "flag": "--glm-pack",
+      "file_kind": "directory"
+    },
+    {
+      "key": "backend",
+      "label": "GPU backend",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "backend"
+      ],
+      "group": "Runtime installation",
+      "description": "cuda for NVIDIA, hip for an already prepared experimental HIP installation. Changing this does not compile or install another backend.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "enum": [
+        "cuda",
+        "hip"
+      ]
+    },
+    {
+      "key": "kv-streaming",
+      "label": "KV streaming",
+      "type": "string",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "group": "Context and cache",
+      "description": "on streams the full latent cache through RAM while retaining a resident GPU window; off keeps the native non-streaming mode.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "flag": "--kv-streaming",
+      "enum": [
+        "on",
+        "off"
+      ]
+    },
+    {
+      "key": "parallel-requests",
+      "label": "Concurrent request slots",
+      "type": "integer",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "group": "Parallel requests",
+      "description": "Requests served concurrently by one Maya model, separate from running multiple model processes. Extra slots consume memory.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "flag": "--parallel",
+      "minimum": 1,
+      "maximum": 8
+    },
+    {
+      "key": "expert-profile",
+      "label": "Expert profile file",
+      "type": "string",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "group": "Expert cache and prefill",
+      "description": "Existing expert profile, preserved on import. VisLlama does not generate one.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "flag": "--expert-profile",
+      "file_kind": "file"
+    },
+    {
+      "key": "dflash-file",
+      "label": "DFlash2 drafter GGUF",
+      "type": "string",
+      "binding": "config-flag",
+      "path": [
+        "args"
+      ],
+      "group": "Drafting",
+      "description": "Optional prepared compatible drafter. Import its configuration to retain calibrated settings. This does not download or calibrate it; hardware and model licensing requirements still apply.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "flag": "--dflash",
+      "file_kind": "file"
+    },
+    {
+      "key": "ram-headroom",
+      "label": "System RAM headroom (GB)",
+      "type": "number",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_RAM_HEADROOM_GB"
+      ],
+      "group": "Memory and native tuning",
+      "description": "RAM left for the system when Maya sizes its pinned expert tier. This is engine-native and is not VisLlama Calculated fitting.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "minimum": 0
+    },
+    {
+      "key": "ram-tier",
+      "label": "Fixed RAM tier (GB)",
+      "type": "number",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_RAM_GB"
+      ],
+      "group": "Memory and native tuning",
+      "description": "Optional fixed expert RAM tier. Leave unset for Maya to size from free RAM.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "minimum": 0
+    },
+    {
+      "key": "ram-resident",
+      "label": "Keep all off-card experts in RAM",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_RAM_RESIDENT"
+      ],
+      "group": "Memory and native tuning",
+      "description": "1 requires every expert outside VRAM to fit in RAM; startup fails if it cannot. 0 leaves normal tiering.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "enum": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "key": "cpu-lane",
+      "label": "CPU expert threads",
+      "type": "integer",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_CPU_LANE"
+      ],
+      "group": "Memory and native tuning",
+      "description": "Threads for the RAM-tier expert CPU lane; 0 disables it. Imported calibration is retained.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "minimum": 0
+    },
+    {
+      "key": "pcie-share",
+      "label": "PCIe expert share",
+      "type": "number",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_PCIE_SHARE"
+      ],
+      "group": "Memory and native tuning",
+      "description": "Engine-native share sent over PCIe instead of CPU computation. Leave unset to retain Maya tuning.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "minimum": 0,
+      "maximum": 1
+    },
+    {
+      "key": "read-chunks",
+      "label": "SSD read chunks",
+      "type": "integer",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_READ_CHUNKS"
+      ],
+      "group": "Memory and native tuning",
+      "description": "Chunks per expert read, 1–16. Preserve calibrated values unless testing a change.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "minimum": 1,
+      "maximum": 16
+    },
+    {
+      "key": "disable-mtp",
+      "label": "Disable MTP drafting",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_NO_MTP"
+      ],
+      "group": "Drafting",
+      "description": "1 disables native MTP drafting; 0 allows the engine default. This does not prepare a separate drafter.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "enum": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "key": "usage-file",
+      "label": "Persistent expert usage file",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_USAGE"
+      ],
+      "group": "Native writable data",
+      "description": "Optional writable usage file. Use a different file for simultaneous models; Maya writes it after requests. Leaving it unset preserves the native default.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "file_kind": "file"
+    },
+    {
+      "key": "slot-directory",
+      "label": "Conversation slot directory",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_SLOT_DIR"
+      ],
+      "group": "Native writable data",
+      "description": "Writable native conversation cache directory. Maya normally uses <pack>/slots and may clear it at startup. Use separate directories for simultaneous instances.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "file_kind": "directory"
+    },
+    {
+      "key": "cpu-calibration-file",
+      "label": "CPU timing cache file",
+      "type": "string",
+      "binding": "config",
+      "path": [
+        "env",
+        "MAYA_GLM_CPU_CAL"
+      ],
+      "group": "Native writable data",
+      "description": "Optional writable native timing cache. Use separate files for simultaneous instances. VisLlama does not run setup calibration.",
+      "source": "Project Maya maya.py / docs/SETTINGS.md; see definition evidence.",
+      "file_kind": "file"
+    }
+  ],
+  "config_overrides": {
+    "model_name": "${alias}",
+    "host": "${host}",
+    "open_browser": false,
+    "log": "${native_log}",
+    "lazy_load": false,
+    "idle_unload_s": 0,
+    "port": "${port}",
+    "api_key": ""
+  },
+  "readiness": {
+    "path": "/health",
+    "equals": {
+      "status": "ok",
+      "unloaded": false
+    }
+  },
+  "evidence": "Reviewed mw00/project-maya maya.py blob 2220ccba8ec6dd716478d819ea716dad46aa1897, serve/server.py blob d1c3703e77d877194f3f00d24a53bc3934e3b7f1 and docs/SETTINGS.md blob ba4df178415648a8522d92a97333f6604d3cd4ee. Direct prepared server launch uses --engine strata despite the Maya product name. GLM --glm-pack contract only; not the separate maya-ds4 contract. Source/fixture validation only, no hardware acceptance. No setup wrappers, refresh_engine, calibration or repacking invoked. Native --help and argument parsing reviewed in src/program/generate.cpp blob d02cb7877e1264153bb6fbd173686ce9e125acd7; Maya environment-name precedence reviewed in tools/maya_names.py blob def506751a7b270e6eff1e4018b634329c2ea955. Revision 1.0.1 attaches the empty API-key value (--api-key=) so legacy Windows PowerShell cannot discard a separate empty argv token.",
+  "fingerprint_files": [
+    "serve/server.py",
+    "tools/maya_names.py",
+    "VERSION"
+  ],
+  "new_config": {
+    "exe": "${runtime_executable}",
+    "cwd": "${root}",
+    "args": [],
+    "lib_dirs": "${runtime_library_dirs}"
+  },
+  "model_bindings": [
+    {
+      "key": "model-format",
+      "equals": "glm-pack",
+      "path": [
+        "args"
+      ],
+      "flag": "--glm-pack",
+      "kind": "directory",
+      "preserve_existing": true
+    }
+  ],
+  "requirements": [
+    {
+      "path": [
+        "exe"
+      ],
+      "kind": "file",
+      "label": "Native engine executable"
+    },
+    {
+      "path": [
+        "tokenizer"
+      ],
+      "kind": "directory",
+      "label": "Tokenizer directory",
+      "children": [
+        "vocab.json",
+        "merges.txt",
+        "token_type.json"
+      ]
+    },
+    {
+      "path": [
+        "args"
+      ],
+      "kind": "array",
+      "label": "Native model arguments"
+    }
+  ],
+  "discovery": [
+    {
+      "id": "native",
+      "argv": [
+        "${runtime_executable}",
+        "--help"
+      ],
+      "timeout": 10,
+      "parser": "help",
+      "target": "config-flag",
+      "path": [
+        "args"
+      ],
+      "exclude": [
+        "--native",
+        "--pack",
+        "--help",
+        "--version",
+        "--serve",
+        "--port",
+        "--host",
+        "--log",
+        "--tokenizer",
+        "--model",
+        "--glm-pack",
+        "--ds4-pack"
+      ]
+    }
+  ],
+  "runtime_executable_path": [
+    "exe"
+  ],
+  "ui": {
+    "build_fields": {
+      "executable": {
+        "label": "Maya server Python interpreter",
+        "description": "Prepared Maya .venv Python. Runs serve/server.py directly; does not run Maya setup, downloads or rebuilds. Windows: .venv/Scripts/python.exe. Linux: .venv/bin/python.",
+        "placeholder": "C:/Maya/.venv/Scripts/python.exe"
+      },
+      "runtime_executable": {
+        "label": "Maya GLM inference executable",
+        "description": "Prepared build/maya.exe (Windows), build/maya (Linux), or build-hip/maya. Separate from the server interpreter. Do not use maya-ds4.",
+        "placeholder": "C:/Maya/build/maya.exe"
+      }
+    },
+    "import": {
+      "alias_path": [
+        "model_name"
+      ],
+      "base_path": [
+        "cwd"
+      ],
+      "model_paths": [
+        {
+          "path": [
+            "args"
+          ],
+          "flag": "--glm-pack"
+        }
+      ]
+    }
+  },
+  "runtime_libraries": {
+    "config_path": [
+      "lib_dirs"
+    ],
+    "base_path": [
+      "cwd"
+    ],
+    "interpreter_relative": [
+      "../Lib/site-packages/nvidia/cublas/bin",
+      "../Lib/site-packages/nvidia/cuda_runtime/bin",
+      "../lib/python*/site-packages/nvidia/cublas/lib",
+      "../lib/python*/site-packages/nvidia/cuda_runtime/lib"
+    ]
+  },
+  "compatible_definition_digests": [
+    "5898300ebc2133d2920a4a87acc4b07c5726718e405257302bffe5694367585b"
+  ],
+  "previous_default_digests": [
+    "5898300ebc2133d2920a4a87acc4b07c5726718e405257302bffe5694367585b"
+  ]
+}

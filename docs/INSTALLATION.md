@@ -289,3 +289,6 @@ with the application files. Edit retained definitions through Manage builds;
 `presets/engines/` holds local bases and build-specific additive files. Strata
 compatibility depends on the prepared installation and model. Registration does
 not verify GPU placement or concurrent mixed-engine fitting.
+
+Maya GLM installations use a bundled definition; see [Maya](MAYA.md). Prepare and
+verify Maya externally, then register its interpreter and native GLM binary.

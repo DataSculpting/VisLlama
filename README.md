@@ -1,7 +1,7 @@
 # VisLlama
 
-**Version 1.5.12** · A Windows and Linux browser administration console for local
-inference engines, with built-in llama.cpp support and experimental Strata support.
+**Version 1.5.18** · A Windows and Linux browser administration console for local
+inference engines, with built-in llama.cpp support and experimental Strata and Maya GLM support.
 Created by [Data Sculpting Inc.](https://datasculpting.com/).
 
 VisLlama manages named builds, model presets, GPU settings and loaded processes
@@ -9,6 +9,10 @@ behind one public OpenAI-compatible Router endpoint. Integrated Chat provides
 streaming, local history, Markdown/code/math rendering and response statistics.
 
 ## Screenshots
+
+The gallery currently shows the earlier 1.5.12 interface. Version 1.5.17 introduces
+the integrated visual refresh; see [UI design](docs/UI_DESIGN.md).
+
 
 ![VisLlama Dashboard with llama.cpp and Strata models loaded, Router status and GPU memory usage](docs/screenshots/01-dashboard.jpg)
 
@@ -44,7 +48,7 @@ by VisLlama at runtime. External engines and monitoring tools have their own dep
 - Shared model editor with Edit/Clone, preview, Save and Save and load/reload.
 - llama.cpp native fitting and Calculated priority placement using fresh VRAM.
 - Reusable declarative engine definitions, per-installation capability discovery
-  and editable model controls; Strata is the experimental reference engine.
+  and editable model controls; experimental Strata and [Maya](docs/MAYA.md) definitions are included.
 - Native JSON import, preserved unknown settings and library-folder list controls.
 - Integrated Chat with model-default sampling/output settings and optional overrides.
 - GPU/CPU/RAM statistics, operational logs and referenced private diagnostics.

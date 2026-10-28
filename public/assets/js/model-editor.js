@@ -6,12 +6,14 @@ function modelEditorFamilyChanged(){return !!MODEL_EDITOR_ORIGINAL_FAMILY&&MODEL
 function modelEditorReset(){
  ++MODEL_EDITOR_SESSION;if(typeof engineResetImportState==='function')engineResetImportState();
  MODEL_EDITOR_KIND='llamacpp';MODEL_EDITOR_FAMILY='llamacpp';MODEL_EDITOR_ORIGINAL_FAMILY=null;MODEL_EDITOR_DRAFTS.clear();++ENGINE_CAPABILITY_SERIAL;MODEL_EDITOR_SWITCHING=false;
- $('engineEditorMount')?.classList.add('hidden');$('engineModelPanel')?.classList.add('hidden');$('nativeModelEditor')?.classList.remove('hidden');$('modelEngineChangeNote')?.classList.add('hidden');$('alias').removeAttribute('aria-invalid');$('aliasError').textContent='';$('aliasError').classList.add('hidden');
+ $('editorImportMount')?.classList.add('hidden');$('engineEditorMount')?.classList.add('hidden');$('engineModelPanel')?.classList.add('hidden');$('nativeModelEditor')?.classList.remove('hidden');$('modelEngineChangeNote')?.classList.add('hidden');$('alias').removeAttribute('aria-invalid');$('aliasError').textContent='';$('aliasError').classList.add('hidden');
 }
 function modelEditorMount(){
+ const importPanel=$('engineImportPanel'),importMount=$('editorImportMount');if(importPanel&&importMount&&!importMount.contains(importPanel))importMount.append(importPanel);
  const panel=$('engineModelPanel');if(panel&&!$('engineEditorMount').contains(panel))$('engineEditorMount').append(panel);
  // Alias is the same physical control for every engine; legacy native fields remain mounted.
  $('singleBuildField').classList.add('hidden');$('singleBuildField').setAttribute('aria-hidden','true');
+ $('modelManageBuilds').onclick=()=>$('openBuildManager').click();
  $('modelBuildChoice').onchange=()=>modelEditorChangeBuild().catch(e=>toast(e.message,true));
  $('alias').addEventListener('input',modelEditorSyncIdentity);
  modelEditorRenderChoices();
@@ -22,7 +24,7 @@ function modelEditorRenderChoices(selected){
  const external=(ENGINE_REGISTRY.builds||[]).map(b=>({value:'extension:'+b.id,label:b.name+' — '+(engineDefinition(b.engine)?.name||b.engine)}));
  const choices=[...native,...external];
  if(keep&&!choices.some(b=>b.value===keep))choices.push({value:keep,label:'Unavailable build: '+keep,missing:true});
- select.innerHTML=choices.map(b=>`<option value="${esc(b.value)}" ${b.missing?'disabled':''}>${esc(b.label)}</option>`).join('');
+ select.innerHTML=choices.map(b=>`<option value="${esc(b.value)}" ${b.missing?'disabled':''}>${esc(b.label)}</option>`).join('')+'<option value="manage-builds">Add new engine/build</option>';
  if(keep&&choices.some(b=>b.value===keep))select.value=keep;
 }
 function modelEditorSyncIdentity(){
@@ -35,7 +37,7 @@ function modelEditorSelectNative(){
  modelEditorRenderChoices('native:'+$('build').value);modelEditorShow();
 }
 function modelEditorShow(){
- const ext=modelEditorExternal(),missing=ext&&!engineBuild($('engineModelBuild').value);$('nativeModelEditor').classList.toggle('hidden',ext);$('engineEditorMount').classList.toggle('hidden',!ext);$('engineModelPanel').classList.toggle('hidden',!ext);
+ const ext=modelEditorExternal(),missing=ext&&!engineBuild($('engineModelBuild').value);$('editorImportMount')?.classList.toggle('hidden',!ext);$('nativeModelEditor').classList.toggle('hidden',ext);$('engineEditorMount').classList.toggle('hidden',!ext);$('engineModelPanel').classList.toggle('hidden',!ext);
  $('singleBuildField').classList.add('hidden');
  $('modelBuildChoiceStatus').textContent=missing?'The saved build is unavailable. Select a registered build or restore its registration in Settings > Manage builds.':ext?'Options come from this engine definition and the selected build’s discovered capabilities.':(!CFG?.model_root?'Set a GGUF model root in Settings to select a llama.cpp model.':'Uses the existing llama.cpp model and GPU controls.');
  const changed=modelEditorFamilyChanged();$('modelEngineChangeNote').classList.toggle('hidden',!changed);
@@ -65,6 +67,7 @@ function modelEditorCapture(){
 async function modelEditorChangeBuild(){
  if(MODEL_EDITOR_SWITCHING)return;
  const choice=$('modelBuildChoice').value,old=MODEL_EDITOR_FAMILY;
+ if(choice==='manage-builds'){modelEditorRenderChoices(modelEditorExternal()?'extension:'+$('engineModelBuild').value:'native:'+$('build').value);$('modelManageBuilds').click();return}
  const ext=choice.startsWith('extension:'),id=choice.slice(choice.indexOf(':')+1),build=ext?engineBuild(id):CFG?.builds.find(b=>b.name===id);
  if(!build){toast('This build is unavailable. Register it in Settings > Manage builds.',true);return}
  const family=ext?build.engine:'llamacpp';let draft;
@@ -91,11 +94,11 @@ async function modelEditorChangeBuild(){
  }finally{if(session===MODEL_EDITOR_SESSION){MODEL_EDITOR_SWITCHING=false;$('modelBuildChoice').disabled=false;syncEditorActions()}}
 }
 function modelEditorCanSave(){
- if(modelEditorExternal()&&typeof ENGINE_IMPORT_PENDING!=='undefined'&&ENGINE_IMPORT_PENDING){toast('Wait for the configuration import to finish.',true);return false}
- if(MODEL_EDITOR_SWITCHING){toast('Wait for the selected build’s controls to finish loading.',true);return false}
- if(modelEditorFamilyChanged()&&LAST_STATUS?.running){toast('Stop Router before changing a model engine type.',true);return false}
- if(modelEditorExternal()&&!engineBuild($('engineModelBuild').value)){toast('Select a registered engine build before saving.',true);return false}
- if(!modelEditorExternal()&&!CFG?.model_root){toast('Set the GGUF model root in Settings before saving a llama.cpp model.',true);return false}
+ if(modelEditorExternal()&&typeof ENGINE_IMPORT_PENDING!=='undefined'&&ENGINE_IMPORT_PENDING){validationBlocked('Wait for the configuration import to finish.');return false}
+ if(MODEL_EDITOR_SWITCHING){validationBlocked('Wait for the selected build’s controls to finish loading.');return false}
+ if(modelEditorFamilyChanged()&&LAST_STATUS?.running){validationBlocked('Stop Router before changing a model engine type.');return false}
+ if(modelEditorExternal()&&!engineBuild($('engineModelBuild').value)){validationBlocked('Select a registered engine build before saving.');return false}
+ if(!modelEditorExternal()&&!CFG?.model_root){validationBlocked('Set the GGUF model root in Settings before saving a llama.cpp model.');return false}
  return true;
 }
 function modelEditorEngineAction(){
@@ -107,8 +110,8 @@ function modelEditorEngineAction(){
 }
 async function modelEditorSaveEngine(reload=false){
  if(EDITOR_SAVE_BUSY||!modelEditorCanSave())return false;
- modelEditorSyncIdentity();if(validateAlias()){return false}if(!engineValidateFields())return false;
- if(reload){const action=editorModelAction();if(action.reason){toast(action.reason,true);return false}}
+ modelEditorSyncIdentity();const aliasProblem=validateAlias();if(aliasProblem)return validationBlocked(aliasProblem,'alias');if(!engineValidateFields())return validationBlocked($('engineModelErrors').textContent||'Review the highlighted engine settings.');
+ if(reload){const action=editorModelAction();if(action.reason)return validationBlocked(action.reason)}
  const r=engineModelPayload();r.replace_engine=modelEditorFamilyChanged();
  const target=ROUTER_PRESETS.find(p=>p.alias===r.alias);if(target&&r.alias!==EDITOR_ALIAS){if(!await confirmPresetOverwrite(r.alias))return false;r.overwrite=true;r.replace_engine||=(target.engine||'llamacpp')!==MODEL_EDITOR_FAMILY;}
  const ownedBefore=!!(LAST_STATUS?.router_engines||[]).find(e=>e.managed&&e.running&&(e.models||[]).includes(EDITOR_ALIAS||r.alias));

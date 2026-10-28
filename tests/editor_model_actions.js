@@ -8,6 +8,10 @@ for(const file of ['state','core','arguments','editor','router'])run(fs.readFile
 let failApply=false;
 let events=[],messages=[],liveState='unloaded',pollFails=false,failSave=false,failPreflight=false,holdState=null,closed=0;
 w.toast=message=>messages.push(message);w.confirm=()=>true;
+// This lifecycle fixture omits navigation.js; full modal/focus behavior is
+// exercised by validation_modal.js with the complete page script set.
+w.openModal=id=>{assert.equal(id,'validationModal');$(id).classList.remove('hidden');messages.push($('validationDescription').textContent)};
+w.closeModal=id=>$(id).classList.add('hidden');
 w.renderRouterPresets=()=>{};w.renderModelLibrary=()=>{};w.updateDashboard=()=>{};w.updateCommand=()=>{};
 w.showView=()=>{};w.closeEditor=()=>closed++;
 const preset={alias:'sample',build:'Build A',enabled:true,options:[]};

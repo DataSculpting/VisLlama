@@ -12,7 +12,7 @@ use Exporter 'import';
 our @EXPORT_OK = qw($APP_VERSION %CFG $STATE);
 
 # One process-wide state owner. Importing this module does not read or write files.
-our $APP_VERSION = '1.5.12';
+our $APP_VERSION = '1.5.18';
 
 our %CFG = (
     listen_host => '127.0.0.1',

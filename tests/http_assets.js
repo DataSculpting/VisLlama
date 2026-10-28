@@ -59,7 +59,7 @@ async function main(){try {
     try {page=await request('GET','/');break;} catch {await new Promise(r=>setTimeout(r,50));}
   }
   assert.ok(page,'Perl server started: '+output);assert.equal(page.status,200);
-  const html=page.body.toString('utf8');assert.match(html,/<title>VisLlama 1\.5\.12<\/title>/);
+  const html=page.body.toString('utf8');assert.match(html,/<title>VisLlama 1\.5\.18<\/title>/);
   assert.equal(+page.headers['content-length'],page.body.length);
   assert.equal((await request('GET','/index.html')).body.toString(),html);
   const urls=[...new Set([...html.matchAll(/(?:src|href)="(\/assets\/[^"#]+)"/g)].map(m=>m[1]))];
@@ -85,7 +85,7 @@ async function main(){try {
   try {fs.symlinkSync(path.join(presetDir,'router-service.json'),link);} catch(e) {if(!['EPERM','EACCES','ENOSYS'].includes(e.code))throw e;}
   if(fs.existsSync(link))assert.equal((await request('GET','/assets/css/escape.css')).status,404);
   const config=JSON.parse((await request('POST','/api/config',{})).body);
-  assert.equal(config.app_version,'1.5.12');assert.deepEqual(config.router_service,fixtures['router-service.json']);
+  assert.equal(config.app_version,'1.5.18');assert.deepEqual(config.router_service,fixtures['router-service.json']);
   assert.equal(config.builds[0].name,'Saved build');assert.equal(config.model_root,'D:\\GGUF');
   assert.equal(config.build_config_file,path.join(presetDir,'llama-builds.json'));
   assert.equal(config.router_presets[1].ui.custom,'retained');
