@@ -36,6 +36,16 @@ function confirmPresetOverwrite(alias){
  });
 }
 
+// Explain blocked explicit actions; ordinary typing keeps inline feedback only.
+// Focus the offending control first so every modal dismissal restores it.
+function validationBlocked(message,field=null){
+ const target=typeof field==='string'?$(field):field;
+ if(target?.isConnected&&!target.disabled)target.focus({preventScroll:true});
+ $('validationDescription').textContent=message;
+ $('validationDismiss').onclick=()=>closeModal('validationModal');
+ openModal('validationModal');return false;
+}
+
 // Validate locally before save; retain the editor and mark the alias inline.
 function validateAlias(){const alias=$('alias').value.trim();const error=!alias?'Enter an API model alias.':/^[A-Za-z0-9._:-]+$/.test(alias)?'':"Enter a model alias using letters, numbers, dots, underscores, hyphens, or colons. Spaces and slashes aren't allowed.";$('alias').setAttribute('aria-invalid',error?'true':'false');$('aliasError').textContent=error;$('aliasError').classList.toggle('hidden',!error);return error}
 
@@ -195,9 +205,9 @@ async function saveEditorPreset(reload=false){
  if(typeof modelEditorExternal==='function'&&modelEditorExternal())return modelEditorSaveEngine(reload);
  if(typeof modelEditorCanSave==='function'&&!modelEditorCanSave())return false;
  if(EDITOR_SAVE_BUSY)return false;
- if(reload){const action=editorModelAction();if(action.reason){syncEditorActions();toast(action.reason,true);return false}}
- ensureAlias();const alias=$('alias').value.trim();const aliasProblem=validateAlias();if(aliasProblem){$('alias').focus();toast(aliasProblem,true);return false}
- const problem=validateConfig();if(problem){toast(problem,true);return false}
+ if(reload){const action=editorModelAction();if(action.reason){syncEditorActions();return validationBlocked(action.reason)}}
+ ensureAlias();const alias=$('alias').value.trim();const aliasProblem=validateAlias();if(aliasProblem){return validationBlocked(aliasProblem,'alias')}
+ const problem=validateConfig();if(problem){return validationBlocked(problem)}
  let unloadedBeforeSave=false,presetSaved=false,recoveryAlias='';
  const runtimeToken=LAST_STATUS?.runtime_token;
  let preflightId,restartRequired=false;

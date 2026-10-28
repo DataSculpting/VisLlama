@@ -45,6 +45,8 @@ sub list_server_folders {
         return { path=>'', parent=>'', folders=>\@drives, files=>[], roots=>jtrue };
     }
     $path =~ tr{/}{\\};
+    # A bare drive denotes its current directory on Windows, never its root.
+    $path .= '\\' if $path =~ /\A[A-Za-z]:\z/;
     return undef unless -d $path;
     my $clean = $path;
     $clean =~ s/\\+$// unless $clean =~ /^[A-Za-z]:\\$/;

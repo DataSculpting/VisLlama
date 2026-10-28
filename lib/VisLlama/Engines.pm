@@ -192,6 +192,12 @@ sub unload {
     die 'Engine stop is unconfirmed; ownership retained. Retry Stop.' unless VisLlama::ProcessState::stop_owned_process($eng->{proc},$eng->{pid},'extension engine');
     delete @{$eng}{qw(proc pid extension_failed)};$eng->{ready}=0;return {};
 }
+sub windows_native_argument {
+    # Platform::launch uses Windows PowerShell's legacy native argument binder.
+    # Its empty PS strings disappear; literal double quotes encode an empty
+    # native argv element. Do not apply this to environment assignments.
+    return VisLlama::Util::ps_quote(length($_[0]) ? $_[0] : '""');
+}
 sub load {
     my ($alias,$eng)=@_;require VisLlama::Catalog;
     return {} if status($eng) eq 'loaded';die 'Engine is still loading; wait or unload it' if $eng->{proc};
@@ -208,10 +214,15 @@ sub load {
     if (VisLlama::Platform::windows()) {
         require VisLlama::Util;
         open my $fh,'>:encoding(UTF-8)',$launcher or die 'Cannot write engine launcher';
-        print {$fh} "\$ErrorActionPreference = 'Stop'\n";
+        # Windows PowerShell can treat a native stderr line as an ErrorRecord.
+        # Keep collecting output and record the native exit status separately.
+        print {$fh} "\$ErrorActionPreference = 'Continue'\n";
+        print {$fh} "\$PSNativeCommandUseErrorActionPreference = \$false\n";
         for my $k (sort keys %{$plan->{env}}) {print {$fh} '$env:'.$k.' = '.VisLlama::Util::ps_quote($plan->{env}{$k})."\n";}
-        print {$fh} '& '.join(' ',map {VisLlama::Util::ps_quote($_)} ($plan->{exe},@{$plan->{args}})).' >> '.VisLlama::Util::ps_quote($plan->{log})." 2>&1\n";
-        print {$fh} 'Set-Content -LiteralPath '.VisLlama::Util::ps_quote($exit).' -Value $LASTEXITCODE -Encoding ASCII'."\n";close $fh;
+        print {$fh} '& '.join(' ',map {windows_native_argument($_)} ($plan->{exe},@{$plan->{args}})).' >> '.VisLlama::Util::ps_quote($plan->{log})." 2>&1\n";
+        print {$fh} "\$engineExit = \$LASTEXITCODE\n";
+        print {$fh} 'Set-Content -LiteralPath '.VisLlama::Util::ps_quote($exit).' -Value $engineExit -Encoding ASCII'."\n";
+        print {$fh} "exit 0\n";close $fh;
     } else {VisLlama::Platform::write_spec($launcher,$plan->{exe},$plan->{args},$plan->{cwd},$plan->{log},$exit,undef,$plan->{env});}
     delete $eng->{extension_failed};
     $eng->{plan}=$plan;$eng->{log_file}=$plan->{log};$eng->{exit_code_file}=$exit;

@@ -36,7 +36,7 @@ const field=key=>d.querySelector(`[data-engine-field="${key}"]`),visible=id=>!el
 const mutations=from=>requests.slice(from).filter(r=>['/api/engine-preset-save','/api/router-preset-save','/api/router-unload','/api/router-load','/api/engine-load-check','/api/router-apply-config'].includes(r.url)).map(r=>r.url);
 (async()=>{try{
  await w.init();assert.deepEqual(errors,[]);assert.equal(d.querySelectorAll('#alias').length,1);assert.equal(el('newEngineModel'),null);
- await open('native-model');assert.equal(el('modelBuildChoice').value,'native:Same name');assert(visible('friendly'));assert(!visible('engineModelPanel'));assert.equal(el('ctx').value,'1024');assert.equal(el('modelBuildChoice').options.length,4);
+ await open('native-model');assert.equal(el('modelBuildChoice').value,'native:Same name');assert(visible('friendly'));assert(!visible('engineModelPanel'));assert.equal(el('ctx').value,'1024');assert.equal(el('modelBuildChoice').options.length,5);
  el('ctx').value='2048';await change('extension:engine-a');assert(!visible('friendly'));assert(visible('engineModelPanel'));assert.equal(el('alias').value,'native-model');assert.equal(field('initial-field').value,'native','New engine family applies declared initial values');assert.equal(field('slots').value,'');assert(visible('modelEngineChangeNote'));field('slots').value='6';field('slots').onchange();el('engineModelPath').value='C:/models/prepared';
  await change('native:Same name');assert.equal(el('ctx').value,'2048','Native draft restored');assert.equal(el('temperature').value,'0.3');assert(!visible('modelEngineChangeNote'));
  await change('extension:engine-a');assert.equal(field('slots').value,'6','External draft restored');assert.equal(el('engineModelPath').value,'C:/models/prepared');

@@ -21,7 +21,7 @@ my $temp = tempdir(CLEANUP => 1);
 chdir $temp or die $!;
 is(abs_path(VisLlama::Paths::app_base_dir()), $root, 'Installation path is independent of working directory');
 my $html = decode('UTF-8', VisLlama::View::app_html());
-like($html, qr/VisLlama 1\.5\.12/, 'Real template renderer supplies the current version');
+like($html, qr/VisLlama 1\.5\.18/, 'Real template renderer supplies the current version');
 unlike($html, qr/\{\{(?:[A-Z]|>)/, 'No unresolved template directives');
 unlike($html, qr/<style>|<script>/, 'Styles and scripts are loaded as external assets');
 like($html, qr{/assets/img/visllama-logo-large\.png}, 'Splash logo uses public asset path');

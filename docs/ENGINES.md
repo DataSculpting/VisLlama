@@ -252,3 +252,17 @@ The native drivers do not provide extension Docker deployment, arbitrary YAML
 rendering, authenticated internal engine APIs or managed-server model switching.
 Engines needing another lifecycle/protocol require implementation support;
 a manifest alone cannot supply a new driver. Engine/model provisioning is external.
+
+## Maya support
+
+The bundled Maya GLM definition uses the same registration, import, shared model
+editor, discovery and lifecycle code. See [Maya setup and settings](MAYA.md) for
+the prepared-installation contract, GPU limits and writable-cache guidance.
+The separate Maya DeepSeek pathway is not included.
+
+The advanced **Editable base configuration JSON** field is saved inside the
+VisLlama preset. It supports native options without named controls. Finishing a
+JSON edit (leaving the field) refreshes matching controls and clears their prior
+overrides; later named-control edits override that base. Source files remain
+unchanged. Supervisor-owned host, port, alias and log values still come from the
+engine definition. Inspect Preview for the generated configuration.

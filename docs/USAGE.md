@@ -209,3 +209,22 @@ Router server. It does not control inference threads or the public VisLlama prox
 and has no effect on Strata or other extension engines. Blank uses the build's
 default. The public proxy creates a worker per accepted connection and has no
 corresponding configurable worker count.
+
+When validation blocks preset Save, Save and load/reload, engine Preview or build
+registration, a modal explains the correction. Dismiss it to return to the
+invalid field. Your draft stays intact; correct the value and retry the action.
+
+Version 1.5.17 uses a compact presentation throughout the console. Model identity,
+engine-defined controls and named build choices retain their existing meaning.
+For external engines, the native JSON importer appears before model identity;
+advanced editable JSON remains separately disclosed below the named controls.
+The Dashboard GPU panel is host-wide monitoring, not evidence of model placement.
+Its saved GPU column shows preset settings, not a verified live allocation.
+
+### Interface refinements in 1.5.18
+
+In Add/Edit model, **Manage engines/builds** and the final **Add new engine/build** selector option open the same build manager. Register a build, close the manager, then choose it; the current model draft is retained.
+
+Model Stats displays the registered build alias for external engines. Configuration hashes still distinguish different settings. Removed registrations appear as **Unregistered build** with their retained ID; history is not rewritten.
+
+In Logs / Diagnostics, **Open Router / Serving** navigates to VisLlama's Router page. It does not open a separate engine web UI.
